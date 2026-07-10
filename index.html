@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your Money Plan</title>
+<meta name="theme-color" content="#10123a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Money Plan">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-512.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700&family=Sora:wght@500;600;700&family=Instrument+Serif&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; background: #10123a; }
+  .lg-root {
+    --lg-radius: 22px;
+    --lg-blur: 22px;
+    font-family: 'Inter', sans-serif;
+    padding: 1rem 0.75rem 2rem;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    isolation: isolate;
+  }
+  .lg-root * { box-sizing: border-box; }
+  .lg-bg {
+    position: fixed; inset: 0; z-index: -1;
+    background: var(--lg-bg-grad); transition: background 0.5s ease;
+  }
+  .lg-themes { display: flex; gap: 8px; margin-bottom: 14px; }
+  .lg-theme-btn {
+    flex: 1; padding: 9px 6px; border-radius: 14px; border: 1px solid var(--lg-glass-border);
+    background: var(--lg-glass); color: var(--lg-text); font-family: 'Inter', sans-serif; font-weight: 600;
+    font-size: 12px; cursor: pointer; backdrop-filter: blur(var(--lg-blur)); -webkit-backdrop-filter: blur(var(--lg-blur));
+    transition: all 0.25s ease; opacity: 0.6;
+  }
+  .lg-theme-btn.active { opacity: 1; box-shadow: 0 0 0 2px var(--lg-accent) inset; }
+  .lg-card {
+    background: var(--lg-glass); border: 1px solid var(--lg-glass-border); border-radius: var(--lg-radius);
+    backdrop-filter: blur(var(--lg-blur)); -webkit-backdrop-filter: blur(var(--lg-blur));
+    padding: 1.1rem 1.2rem; margin-bottom: 12px; color: var(--lg-text);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12); transition: background 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+  }
+  .lg-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--lg-text-soft); margin: 0 0 2px; }
+  .lg-greeting { font-family: var(--lg-font-display); font-weight: 600; font-size: 19px; margin: 0 0 10px; line-height: 1.3; }
+  .lg-hero-label { font-size: 12px; color: var(--lg-text-soft); font-weight: 500; margin: 0 0 2px; }
+  .lg-hero-num { font-family: var(--lg-font-display); font-weight: 700; font-size: 34px; margin: 0 0 10px; }
+  .lg-pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .lg-pill {
+    font-size: 12px; font-weight: 600; padding: 7px 12px; border-radius: 999px;
+    background: color-mix(in srgb, var(--lg-accent) 22%, transparent); color: var(--lg-text);
+    border: 1px solid color-mix(in srgb, var(--lg-accent) 40%, transparent);
+  }
+  .lg-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .lg-action-btn {
+    flex: 1; padding: 10px 8px; border-radius: 14px; border: 1px solid var(--lg-glass-border);
+    background: color-mix(in srgb, var(--lg-text) 6%, transparent); color: var(--lg-text);
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 12px; cursor: pointer;
+  }
+  .lg-used-row { display: flex; align-items: center; gap: 12px; margin-top: 14px; }
+  .lg-used-sub { font-size: 11px; color: var(--lg-text-soft); }
+  .lg-used-num { font-family: var(--lg-font-display); font-weight: 700; font-size: 16px; }
+  .lg-section-title { font-family: var(--lg-font-display); font-weight: 600; font-size: 16px; margin: 0 0 12px; }
+  .lg-budget-row { margin-bottom: 12px; }
+  .lg-budget-row:last-child { margin-bottom: 0; }
+  .lg-budget-top { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+  .lg-budget-track { height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--lg-text) 12%, transparent); overflow: hidden; }
+  .lg-budget-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+  .lg-goal-card { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--lg-glass-border); }
+  .lg-goal-card:first-of-type { border-top: none; padding-top: 0; }
+  .lg-goal-label { font-size: 13px; font-weight: 600; margin: 0; }
+  .lg-goal-sub { font-size: 11px; color: var(--lg-text-soft); margin: 2px 0 0; }
+  .lg-tx-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-top: 1px solid var(--lg-glass-border); }
+  .lg-tx-row:first-of-type { border-top: none; padding-top: 0; }
+  .lg-tx-left { display: flex; align-items: center; gap: 10px; }
+  .lg-tx-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .lg-tx-name { font-size: 13px; font-weight: 600; margin: 0; }
+  .lg-tx-sub { font-size: 11px; color: var(--lg-text-soft); margin: 0; }
+  .lg-tx-amt { font-size: 13px; font-weight: 700; font-family: var(--lg-font-display); }
+  .lg-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; margin-bottom: 10px; }
+  .lg-field label { display: block; font-size: 11px; font-weight: 600; color: var(--lg-text-soft); margin-bottom: 4px; }
+  .lg-field input {
+    width: 100%; height: 36px; border-radius: 12px; border: 1px solid var(--lg-glass-border);
+    background: color-mix(in srgb, var(--lg-text) 6%, transparent); color: var(--lg-text); padding: 0 10px;
+    font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px;
+  }
+  .lg-field input::placeholder { color: var(--lg-text-soft); }
+  .lg-field input:focus { outline: none; box-shadow: 0 0 0 2px var(--lg-accent); }
+  .lg-log-btn {
+    width: 100%; padding: 12px; border-radius: 14px; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--lg-accent), var(--lg-accent2)); color: #fff;
+    font-family: var(--lg-font-display); font-weight: 600; font-size: 14px;
+  }
+  .lg-feedback { font-size: 13px; font-weight: 600; margin-top: 10px; padding: 10px 12px; border-radius: 12px; display: none; }
+  .lg-feedback.show { display: block; }
+  .lg-empty { font-size: 12px; color: var(--lg-text-soft); }
+  .lg-reset { text-align: center; }
+  .lg-reset button {
+    background: transparent; border: 1px solid var(--lg-glass-border); color: var(--lg-text-soft);
+    border-radius: 999px; padding: 8px 16px; font-size: 11px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+  }
+  .lg-offline-note { text-align: center; font-size: 11px; color: var(--lg-text-soft); margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="lg-root" id="lg-root">
+  <div class="lg-bg" id="lg-bg"></div>
+
+  <p class="lg-offline-note" id="lg-offline-note"></p>
+  <div class="lg-themes" id="lg-themes"></div>
+
+  <!-- Card 1: greeting / available to spend / streak / actions / % used ring -->
+  <div class="lg-card">
+    <p class="lg-eyebrow">Your plan · started 10 Jul 2026</p>
+    <p class="lg-greeting">On track for $85k by Dec 31, and a house deposit at 26</p>
+    <p class="lg-hero-label">Available to spend this week</p>
+    <p class="lg-hero-num" id="lg-available">$300</p>
+    <div class="lg-pill-row">
+      <span class="lg-pill" id="lg-streak-pill">0-week streak</span>
+      <span class="lg-pill" id="lg-countdown-pill">- weeks to goal</span>
+    </div>
+    <p class="lg-goal-sub" id="lg-checkin-msg" style="margin-bottom:10px;"></p>
+    <div class="lg-actions">
+      <button class="lg-action-btn" id="lg-scroll-log">Log week</button>
+      <button class="lg-action-btn" id="lg-scroll-budgets">Budgets</button>
+      <button class="lg-action-btn" id="lg-scroll-goals">Goals</button>
+    </div>
+    <div class="lg-used-row">
+      <svg width="52" height="52" viewBox="0 0 52 52"><circle cx="26" cy="26" r="21" stroke="color-mix(in srgb, var(--lg-text) 15%, transparent)" stroke-width="5" fill="none"/><circle id="lg-ring-used" cx="26" cy="26" r="21" stroke="var(--lg-accent)" stroke-width="5" fill="none" stroke-linecap="round" transform="rotate(-90 26 26)"/></svg>
+      <div><p class="lg-used-num" id="lg-used-num">0%</p><p class="lg-used-sub">of weekly spend budget used</p></div>
+    </div>
+  </div>
+
+  <!-- Card 2: recent weeks (transactions-style feed) -->
+  <div class="lg-card">
+    <p class="lg-section-title">Recent weeks</p>
+    <div id="lg-tx-rows"><p class="lg-empty">No weeks logged yet.</p></div>
+  </div>
+
+  <!-- Card 3: budgets -->
+  <div class="lg-card" id="lg-budgets-card">
+    <p class="lg-section-title">Budgets — last logged week</p>
+    <div id="lg-budget-rows"></div>
+  </div>
+
+  <!-- Card 4: goals -->
+  <div class="lg-card" id="lg-goals-card">
+    <p class="lg-section-title">Goals</p>
+    <p class="lg-goal-sub" style="margin-bottom:10px;" id="lg-level-label">Level 1 · 0/4 weeks</p>
+    <div class="lg-budget-track" style="margin-bottom:14px;"><div class="lg-budget-fill" id="lg-xp-fill" style="width:0%; background: var(--lg-accent);"></div></div>
+    <div class="lg-goal-card">
+      <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" stroke="color-mix(in srgb, var(--lg-text) 15%, transparent)" stroke-width="6" fill="none"/><circle id="lg-ring-year" cx="28" cy="28" r="24" stroke="var(--lg-accent)" stroke-width="6" fill="none" stroke-linecap="round" transform="rotate(-90 28 28)"/></svg>
+      <div><p class="lg-goal-label">Year-end goal</p><p class="lg-goal-sub" id="lg-year-sub">$50,000 of $85,000</p></div>
+    </div>
+    <div class="lg-goal-card">
+      <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" stroke="color-mix(in srgb, var(--lg-text) 15%, transparent)" stroke-width="6" fill="none"/><circle id="lg-ring-house" cx="28" cy="28" r="24" stroke="var(--lg-accent2)" stroke-width="6" fill="none" stroke-linecap="round" transform="rotate(-90 28 28)"/></svg>
+      <div><p class="lg-goal-label">House deposit (6yr)</p><p class="lg-goal-sub" id="lg-house-sub">$0 of $46,495</p></div>
+    </div>
+    <p class="lg-goal-sub" style="margin-top:10px;">Worth a look: the First Home Super Saver Scheme lets you contribute toward this goal through super at a lower tax rate — trades some flexibility for a real tax saving.</p>
+  </div>
+
+  <!-- Card 5: wildcards -->
+  <div class="lg-card">
+    <p class="lg-section-title">Wildcards</p>
+    <p class="lg-goal-sub" style="margin-bottom:10px;">Real money on the table, kept separate so your everyday numbers stay honest. Flip these on only once the money's actually landed — not before.</p>
+    <div class="lg-goal-card" style="justify-content:space-between;">
+      <div><p class="lg-goal-label">Grandma's 21st gift</p><p class="lg-goal-sub">$15,000 — counts toward your Dec 31 goal if it arrives in time</p></div>
+      <input type="checkbox" id="lg-wc-grandma" style="width:22px; height:22px; accent-color: var(--lg-accent);"/>
+    </div>
+    <div class="lg-goal-card" style="justify-content:space-between;">
+      <div><p class="lg-goal-label">Parents' $10k</p><p class="lg-goal-sub">Earmarked for a big purchase — leave off unless you decide to redirect it</p></div>
+      <input type="checkbox" id="lg-wc-parents" style="width:22px; height:22px; accent-color: var(--lg-accent);"/>
+    </div>
+  </div>
+
+  <!-- Card 6: log form -->
+  <div class="lg-card" id="lg-log-card">
+    <p class="lg-section-title">Log this week</p>
+    <div class="lg-form-grid">
+      <div class="lg-field"><label>Food</label><input type="number" id="lg-food" placeholder="0"/></div>
+      <div class="lg-field"><label>Transport</label><input type="number" id="lg-transport" placeholder="0"/></div>
+      <div class="lg-field"><label>Fun</label><input type="number" id="lg-fun" placeholder="0"/></div>
+      <div class="lg-field"><label>Other</label><input type="number" id="lg-other" placeholder="0"/></div>
+      <div class="lg-field"><label>Saved (HISA)</label><input type="number" id="lg-saved" placeholder="300"/></div>
+      <div class="lg-field"><label>Invested (ETF)</label><input type="number" id="lg-invested" placeholder="125"/></div>
+    </div>
+    <button class="lg-log-btn" id="lg-log-btn">Log week</button>
+    <div class="lg-feedback" id="lg-feedback"></div>
+  </div>
+
+  <div class="lg-reset"><button id="lg-reset-btn">Reset all logged data</button></div>
+</div>
+
+<script>
+(function () {
+  const START_BALANCE = 50000;
+  const GOAL_MID = 85000;
+  const GOAL_DATE = new Date('2026-12-31T23:59:59');
+  const PLAN_START = new Date('2026-07-10T00:00:00');
+  const TARGET_HISA_LOW = 300, TARGET_HISA_HIGH = 900, TARGET_INVEST = 125;
+  const ANNUAL_RATE = 0.05;
+  const HOUSE_TARGET = 46495;
+  const CAPS = { food: 150, transport: 60, fun: 50, other: 40 };
+  const WEEKLY_SPEND_CAP = 300;
+  const STORAGE_KEY = 'liquid-budget-entries';
+  const THEME_KEY = 'liquid-budget-theme';
+  const WILDCARD_KEY = 'liquid-budget-wildcards';
+  const LAST_OPEN_KEY = 'liquid-budget-last-open';
+
+  function targetHisaFor(i) { return i % 2 === 0 ? TARGET_HISA_LOW : TARGET_HISA_HIGH; }
+  function targetCombinedFor(i) { return targetHisaFor(i) + TARGET_INVEST; }
+  const fmt = (n) => '$' + Math.round(n).toLocaleString();
+  const el = (id) => document.getElementById(id);
+
+  const THEMES = {
+    aurora: { name: 'Aurora', font: "'Bricolage Grotesque', sans-serif", bg: 'radial-gradient(circle at 18% 18%, #ff6f61 0%, transparent 45%), radial-gradient(circle at 82% 78%, #7f2aff 0%, transparent 50%), #160a30', glass: 'rgba(255,255,255,0.10)', border: 'rgba(255,255,255,0.20)', text: '#fdf3ee', textSoft: 'rgba(253,243,238,0.65)', accent: '#ff8a70', accent2: '#a35bff' },
+    nebula: { name: 'Nebula', font: "'Sora', sans-serif", bg: 'radial-gradient(circle at 22% 18%, #3a4bd6 0%, transparent 45%), radial-gradient(circle at 80% 82%, #7a3ad1 0%, transparent 50%), #10123a', glass: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.16)', text: '#eef0ff', textSoft: 'rgba(238,240,255,0.65)', accent: '#6f9bff', accent2: '#9a7bff' },
+    citrus: { name: 'Citrus', font: "'Instrument Serif', serif", bg: 'radial-gradient(circle at 18% 18%, #d8f5e3 0%, transparent 45%), radial-gradient(circle at 82% 78%, #fdf0c0 0%, transparent 50%), #fdf8ee', glass: 'rgba(255,255,255,0.55)', border: 'rgba(120,110,90,0.18)', text: '#2b2a25', textSoft: 'rgba(43,42,37,0.6)', accent: '#e0895a', accent2: '#4fae7a' }
+  };
+
+  const store = {
+    async get(key) {
+      if (window.storage && typeof window.storage.get === 'function') {
+        try { const r = await window.storage.get(key, false); return r ? r.value : null; } catch (e) {}
+      }
+      try { return localStorage.getItem(key); } catch (e) { return null; }
+    },
+    async set(key, value) {
+      if (window.storage && typeof window.storage.set === 'function') {
+        try { await window.storage.set(key, value, false); return; } catch (e) {}
+      }
+      try { localStorage.setItem(key, value); } catch (e) {}
+    }
+  };
+
+  let entries = [];
+  let currentTheme = 'nebula';
+  let wildcards = { grandma: false, parents: false };
+
+  function applyTheme(key) {
+    currentTheme = key;
+    const t = THEMES[key];
+    const root = el('lg-root');
+    root.style.setProperty('--lg-font-display', t.font);
+    root.style.setProperty('--lg-glass', t.glass);
+    root.style.setProperty('--lg-glass-border', t.border);
+    root.style.setProperty('--lg-text', t.text);
+    root.style.setProperty('--lg-text-soft', t.textSoft);
+    root.style.setProperty('--lg-accent', t.accent);
+    root.style.setProperty('--lg-accent2', t.accent2);
+    root.style.setProperty('--lg-bg-grad', t.bg);
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', t.bg.includes('#10123a') ? '#10123a' : (t.bg.includes('#160a30') ? '#160a30' : '#fdf8ee'));
+    renderThemeButtons();
+  }
+
+  function renderThemeButtons() {
+    const wrap = el('lg-themes');
+    wrap.innerHTML = '';
+    Object.keys(THEMES).forEach((key) => {
+      const btn = document.createElement('button');
+      btn.className = 'lg-theme-btn' + (key === currentTheme ? ' active' : '');
+      btn.textContent = THEMES[key].name;
+      btn.addEventListener('click', async () => { applyTheme(key); await store.set(THEME_KEY, key); });
+      wrap.appendChild(btn);
+    });
+  }
+
+  async function loadEntries() {
+    try { const raw = await store.get(STORAGE_KEY); entries = raw ? JSON.parse(raw) : []; } catch (e) { entries = []; }
+  }
+  async function saveEntries() { await store.set(STORAGE_KEY, JSON.stringify(entries)); }
+
+  function computeStreak() {
+    let streak = 0;
+    for (let i = entries.length - 1; i >= 0; i--) {
+      if ((entries[i].saved + entries[i].invested) >= targetCombinedFor(i)) streak++; else break;
+    }
+    return streak;
+  }
+
+  function computeStats() {
+    const cumulativeSaved = entries.reduce((s, e) => s + e.saved, 0);
+    const cumulativeInvested = entries.reduce((s, e) => s + e.invested, 0);
+    const now = new Date();
+    const daysSinceStart = Math.max(0, (now - PLAN_START) / 86400000);
+    const estInterest = START_BALANCE * ANNUAL_RATE * (daysSinceStart / 365);
+    const wildcardTotal = (wildcards.grandma ? 15000 : 0) + (wildcards.parents ? 10000 : 0);
+    const totalNetWorth = START_BALANCE + cumulativeSaved + cumulativeInvested + estInterest + wildcardTotal;
+    const weeksToGoal = Math.max(0, Math.round((GOAL_DATE - now) / (7 * 86400000)));
+    return { cumulativeSaved, cumulativeInvested, totalNetWorth, streak: computeStreak(), weeksToGoal };
+  }
+
+  function setRing(id, pct, r) {
+    const circ = 2 * Math.PI * r;
+    const clamped = Math.max(0, Math.min(100, pct));
+    const circle = el(id);
+    circle.setAttribute('stroke-dasharray', circ.toFixed(1));
+    circle.setAttribute('stroke-dashoffset', (circ * (1 - clamped / 100)).toFixed(1));
+  }
+
+  function renderBudgets() {
+    const last = entries.length ? entries[entries.length - 1] : { food: 0, transport: 0, fun: 0, other: 0 };
+    const wrap = el('lg-budget-rows');
+    wrap.innerHTML = '';
+    const cats = [['food', 'Food'], ['transport', 'Transport'], ['fun', 'Fun'], ['other', 'Other']];
+    cats.forEach(([key, label]) => {
+      const spent = last[key] || 0;
+      const cap = CAPS[key];
+      const pct = Math.min(100, (spent / cap) * 100);
+      const over = spent > cap;
+      const row = document.createElement('div');
+      row.className = 'lg-budget-row';
+      row.innerHTML = '<div class="lg-budget-top"><span>' + label + '</span><span>' + fmt(spent) + ' / ' + fmt(cap) + '</span></div>' +
+        '<div class="lg-budget-track"><div class="lg-budget-fill" style="width:' + pct + '%; background:' + (over ? '#e85c6b' : 'var(--lg-accent)') + '"></div></div>';
+      wrap.appendChild(row);
+    });
+  }
+
+  function renderTx() {
+    const wrap = el('lg-tx-rows');
+    if (entries.length === 0) { wrap.innerHTML = '<p class="lg-empty">No weeks logged yet.</p>'; return; }
+    wrap.innerHTML = '';
+    const colors = ['#ff8a70', '#6f9bff', '#4fae7a', '#e0895a', '#9a7bff'];
+    const recent = entries.slice(-5).reverse();
+    recent.forEach((e, idx) => {
+      const weekNum = entries.length - idx;
+      const spent = e.food + e.transport + e.fun + e.other;
+      const net = e.saved + e.invested - spent;
+      const row = document.createElement('div');
+      row.className = 'lg-tx-row';
+      row.innerHTML = '<div class="lg-tx-left"><div class="lg-tx-avatar" style="background:' + colors[idx % colors.length] + '">W' + weekNum + '</div>' +
+        '<div><p class="lg-tx-name">Week ' + weekNum + '</p><p class="lg-tx-sub">Spent ' + fmt(spent) + ' · saved ' + fmt(e.saved) + ' · invested ' + fmt(e.invested) + '</p></div></div>' +
+        '<span class="lg-tx-amt" style="color:' + (net >= 0 ? 'var(--lg-accent2)' : '#e85c6b') + '">' + (net >= 0 ? '+' : '') + fmt(net) + '</span>';
+      wrap.appendChild(row);
+    });
+  }
+
+  function renderAll() {
+    const stats = computeStats();
+    const last = entries.length ? entries[entries.length - 1] : null;
+    const lastSpend = last ? (last.food + last.transport + last.fun + last.other) : 0;
+    const available = Math.max(0, WEEKLY_SPEND_CAP - lastSpend);
+    const usedPct = Math.min(999, Math.round((lastSpend / WEEKLY_SPEND_CAP) * 100));
+
+    el('lg-available').textContent = fmt(available);
+    el('lg-streak-pill').textContent = stats.streak + '-week streak';
+    el('lg-countdown-pill').textContent = stats.weeksToGoal + ' weeks to goal';
+    el('lg-used-num').textContent = usedPct + '%';
+    setRing('lg-ring-used', usedPct, 21);
+
+    const level = Math.floor(entries.length / 4) + 1;
+    const xp = entries.length % 4;
+    el('lg-level-label').textContent = 'Level ' + level + ' · ' + xp + '/4 weeks to next level';
+    el('lg-xp-fill').style.width = (xp / 4 * 100) + '%';
+
+    const yearPct = ((stats.totalNetWorth - START_BALANCE) / (GOAL_MID - START_BALANCE)) * 100;
+    setRing('lg-ring-year', yearPct, 24);
+    el('lg-year-sub').textContent = fmt(stats.totalNetWorth) + ' of ' + fmt(GOAL_MID);
+
+    const housePct = (stats.cumulativeInvested / HOUSE_TARGET) * 100;
+    setRing('lg-ring-house', housePct, 24);
+    el('lg-house-sub').textContent = fmt(stats.cumulativeInvested) + ' of ' + fmt(HOUSE_TARGET);
+
+    renderBudgets();
+    renderTx();
+  }
+
+  async function handleLog() {
+    const food = parseFloat(el('lg-food').value) || 0;
+    const transport = parseFloat(el('lg-transport').value) || 0;
+    const fun = parseFloat(el('lg-fun').value) || 0;
+    const other = parseFloat(el('lg-other').value) || 0;
+    const saved = parseFloat(el('lg-saved').value) || 0;
+    const invested = parseFloat(el('lg-invested').value) || 0;
+    if (food + transport + fun + other + saved + invested === 0) return;
+
+    entries.push({ food, transport, fun, other, saved, invested, loggedAt: new Date().toISOString() });
+    await saveEntries();
+
+    const target = targetCombinedFor(entries.length - 1);
+    const combined = saved + invested;
+    const fb = el('lg-feedback');
+    fb.className = 'lg-feedback show';
+    fb.style.background = combined >= target ? 'color-mix(in srgb, var(--lg-accent2) 20%, transparent)' : 'color-mix(in srgb, #e85c6b 20%, transparent)';
+    fb.textContent = combined >= target ? 'Nice — you hit this week\'s target.' : 'Logged — a bit under target this week, still counts.';
+
+    ['lg-food', 'lg-transport', 'lg-fun', 'lg-other', 'lg-saved', 'lg-invested'].forEach((id) => { el(id).value = ''; });
+    renderAll();
+  }
+
+  async function handleReset() {
+    if (!confirm('Reset all logged weeks? This cannot be undone.')) return;
+    entries = [];
+    await saveEntries();
+    el('lg-feedback').className = 'lg-feedback';
+    renderAll();
+  }
+
+  function renderCheckinNudge() {
+    const msgEl = el('lg-checkin-msg');
+    store.get(LAST_OPEN_KEY).then((raw) => {
+      const last = raw ? new Date(raw) : null;
+      const now = new Date();
+      if (last) {
+        const daysSince = (now - last) / 86400000;
+        if (daysSince < 3) {
+          msgEl.textContent = "You've checked in very recently — the plan runs itself, you don't need to watch it daily.";
+        } else if (daysSince < 10) {
+          msgEl.textContent = 'Good rhythm — checking in roughly weekly is exactly the right pace.';
+        } else {
+          msgEl.textContent = "It's been a while since your last check-in. Log a few weeks and move on with your day.";
+        }
+      } else {
+        msgEl.textContent = 'First time here — log your week, then close the app. You do not need to track this daily.';
+      }
+      store.set(LAST_OPEN_KEY, now.toISOString());
+    });
+  }
+
+  async function initWildcards() {
+    try {
+      const raw = await store.get(WILDCARD_KEY);
+      wildcards = raw ? JSON.parse(raw) : { grandma: false, parents: false };
+    } catch (e) { wildcards = { grandma: false, parents: false }; }
+    el('lg-wc-grandma').checked = !!wildcards.grandma;
+    el('lg-wc-parents').checked = !!wildcards.parents;
+    el('lg-wc-grandma').addEventListener('change', async (e) => { wildcards.grandma = e.target.checked; await store.set(WILDCARD_KEY, JSON.stringify(wildcards)); renderAll(); });
+    el('lg-wc-parents').addEventListener('change', async (e) => { wildcards.parents = e.target.checked; await store.set(WILDCARD_KEY, JSON.stringify(wildcards)); renderAll(); });
+  }
+
+  el('lg-log-btn').addEventListener('click', handleLog);
+  el('lg-reset-btn').addEventListener('click', handleReset);
+  el('lg-scroll-log').addEventListener('click', () => el('lg-log-card').scrollIntoView({ behavior: 'smooth' }));
+  el('lg-scroll-budgets').addEventListener('click', () => el('lg-budgets-card').scrollIntoView({ behavior: 'smooth' }));
+  el('lg-scroll-goals').addEventListener('click', () => el('lg-goals-card').scrollIntoView({ behavior: 'smooth' }));
+
+  if (!window.storage) {
+    el('lg-offline-note').textContent = navigator.onLine === false ? 'Offline — showing your last saved data' : 'Running standalone — data saved on this device';
+  }
+
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  }
+
+  (async function init() {
+    let savedTheme = null;
+    try { savedTheme = await store.get(THEME_KEY); } catch (e) {}
+    applyTheme(savedTheme && THEMES[savedTheme] ? savedTheme : 'nebula');
+    await loadEntries();
+    await initWildcards();
+    renderAll();
+    renderCheckinNudge();
+  })();
+})();
+</script>
+</body>
+</html>
