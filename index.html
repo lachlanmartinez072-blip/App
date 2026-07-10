@@ -147,6 +147,32 @@
       <p class="lg-goal-sub" id="lg-checkin-msg" style="margin-bottom:6px;"></p>
     </div>
 
+    <div class="lg-card" id="lg-trip-card">
+      <p class="lg-section-title">Trip mode</p>
+      <p class="lg-goal-sub" id="lg-trip-status" style="margin-bottom:10px;">No trip set up yet.</p>
+      <div class="lg-form-grid">
+        <div class="lg-field"><label>Destination</label><input type="text" id="lg-trip-name" placeholder="Asia trip"/></div>
+        <div class="lg-field"><label>Budget</label><input type="number" id="lg-trip-budget" placeholder="3000"/></div>
+        <div class="lg-field"><label>Start date</label><input type="date" id="lg-trip-start"/></div>
+        <div class="lg-field"><label>End date</label><input type="date" id="lg-trip-end"/></div>
+      </div>
+      <button class="lg-save-btn" id="lg-trip-save-btn" style="margin-bottom:10px;">Save trip</button>
+
+      <div id="lg-trip-dashboard" style="display:none;">
+        <div class="lg-bar-track"><div class="lg-bar-fill" id="lg-trip-bar-fill" style="width:0%; background:#e0895a;"></div></div>
+        <div class="lg-grid3-like" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-bottom:12px;">
+          <div><p class="lg-hero-label">Spent / Budget</p><p class="lg-goal-label" id="lg-trip-spent-of-budget">-</p></div>
+          <div><p class="lg-hero-label">Daily average so far</p><p class="lg-goal-label" id="lg-trip-daily-avg">-</p></div>
+        </div>
+        <div class="lg-form-grid">
+          <div class="lg-field"><label>Expense name</label><input type="text" id="lg-trip-exp-name" placeholder="e.g. Hostel, ramen…"/></div>
+          <div class="lg-field"><label>Amount</label><input type="number" id="lg-trip-exp-amount" placeholder="0"/></div>
+        </div>
+        <button class="lg-log-btn" id="lg-trip-exp-log-btn" style="margin-bottom:10px;">Log trip expense</button>
+        <div id="lg-trip-exp-rows"><p class="lg-empty">No trip expenses logged yet.</p></div>
+      </div>
+    </div>
+
     <div class="lg-card">
       <p class="lg-hero-label" id="lg-goal-label">Left to reach your $85k goal</p>
       <p class="lg-hero-num" id="lg-left-to-goal" style="font-size:28px;">$35,000</p>
@@ -158,6 +184,7 @@
     <div class="lg-card">
       <p class="lg-section-title">This week's paycheck split</p>
       <p class="lg-goal-sub" id="lg-week-type-label" style="margin-bottom:10px;">Checking the date…</p>
+      <p class="lg-goal-sub" id="lg-trip-pause-note" style="display:none; margin-bottom:10px; color:#e0895a;"></p>
       <div class="lg-field" style="margin-bottom:12px;">
         <label>This week's income (what actually landed)</label>
         <input type="number" id="lg-income-input" placeholder="725"/>
@@ -329,6 +356,19 @@
     </div>
 
     <div class="lg-card">
+      <p class="lg-section-title">Rewards</p>
+      <p class="lg-hero-label">XP available</p>
+      <p class="lg-hero-num" id="lg-xp-balance" style="font-size:32px;">0 XP</p>
+      <p class="lg-goal-sub" style="margin-bottom:12px;">+10 XP for every week you hit your HISA savings target. Add prizes for yourself below, then redeem them once you've earned enough.</p>
+      <div class="lg-form-grid">
+        <div class="lg-field"><label>Prize</label><input type="text" id="lg-reward-name" placeholder="e.g. New headphones"/></div>
+        <div class="lg-field"><label>XP cost</label><input type="number" id="lg-reward-cost" placeholder="50"/></div>
+      </div>
+      <button class="lg-save-btn" id="lg-reward-add-btn" style="margin-bottom:12px;">Add prize</button>
+      <div id="lg-reward-rows"><p class="lg-empty">No prizes added yet.</p></div>
+    </div>
+
+    <div class="lg-card">
       <p class="lg-section-title">Wildcards</p>
       <p class="lg-goal-sub" style="margin-bottom:10px;">Kept separate so your everyday numbers stay honest. Flip on only once the money's actually landed.</p>
       <div class="lg-goal-card" style="justify-content:space-between;">
@@ -382,6 +422,9 @@
   const MARKET_TICKER_STORAGE = 'liquid-budget-market-ticker';
   const GOAL_KEY = 'liquid-budget-goal';
   const TXN_KEY = 'liquid-budget-transactions';
+  const TRIP_KEY = 'liquid-budget-trip';
+  const TRIP_EXPENSES_KEY = 'liquid-budget-trip-expenses';
+  const REWARDS_KEY = 'liquid-budget-rewards';
   const ANCHOR_DATE = new Date('2026-08-13T00:00:00');
 
   function weekIndexForDate(d) { return Math.floor((d - ANCHOR_DATE) / (7 * 86400000)); }
@@ -422,6 +465,9 @@
 
   let entries = [];
   let transactions = [];
+  let trip = null;
+  let tripExpenses = [];
+  let rewards = [];
   let currentTheme = 'nebula';
   let currentTab = 'home';
   let wildcards = { grandma: false, parents: false };
@@ -567,6 +613,202 @@
     renderTransactions();
   }
 
+  function totalXPEarned() {
+    let count = 0;
+    for (let i = 0; i < entries.length; i++) {
+      if (entries[i].saved >= targetCombinedFor(i)) count++;
+    }
+    return count * 10;
+  }
+
+  async function loadRewards() {
+    try { const raw = await store.get(REWARDS_KEY); rewards = raw ? JSON.parse(raw) : []; } catch (e) { rewards = []; }
+  }
+  async function saveRewards() { await store.set(REWARDS_KEY, JSON.stringify(rewards)); }
+
+  function xpBalance() {
+    const spent = rewards.filter((r) => r.redeemed).reduce((s, r) => s + r.cost, 0);
+    return totalXPEarned() - spent;
+  }
+
+  function renderRewards() {
+    el('lg-xp-balance').textContent = xpBalance() + ' XP';
+    const wrap = el('lg-reward-rows');
+    if (rewards.length === 0) { wrap.innerHTML = '<p class="lg-empty">No prizes added yet.</p>'; return; }
+    wrap.innerHTML = '';
+    const balance = xpBalance();
+    rewards.slice().reverse().forEach((r) => {
+      const row = document.createElement('div');
+      row.className = 'lg-goal-card';
+      row.style.justifyContent = 'space-between';
+      const canAfford = !r.redeemed && balance >= r.cost;
+      let rightHtml;
+      if (r.redeemed) {
+        rightHtml = '<span class="lg-goal-sub" style="color:var(--lg-accent2);">Redeemed ✓</span>';
+      } else {
+        rightHtml = '<button class="lg-btn-redeem" data-id="' + r.id + '" style="padding:8px 14px; border-radius:999px; border:none; font-size:12px; font-weight:700; cursor:' + (canAfford ? 'pointer' : 'not-allowed') + '; background:' + (canAfford ? 'linear-gradient(135deg, var(--lg-accent), var(--lg-accent2))' : 'color-mix(in srgb, var(--lg-text) 10%, transparent)') + '; color:' + (canAfford ? '#fff' : 'var(--lg-text-soft)') + ';" ' + (canAfford ? '' : 'disabled') + '>Redeem</button>';
+      }
+      row.innerHTML = '<div><p class="lg-goal-label">' + r.name + '</p><p class="lg-goal-sub">' + r.cost + ' XP</p></div>' + rightHtml;
+      wrap.appendChild(row);
+    });
+    document.querySelectorAll('.lg-btn-redeem').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        const reward = rewards.find((r) => String(r.id) === id);
+        if (!reward || xpBalance() < reward.cost) return;
+        if (!confirm('Redeem "' + reward.name + '" for ' + reward.cost + ' XP?')) return;
+        reward.redeemed = true;
+        reward.redeemedAt = new Date().toISOString();
+        await saveRewards();
+        renderRewards();
+      });
+    });
+  }
+
+  async function initRewards() {
+    await loadRewards();
+    renderRewards();
+    el('lg-reward-add-btn').addEventListener('click', async () => {
+      const name = el('lg-reward-name').value.trim();
+      const cost = parseFloat(el('lg-reward-cost').value) || 0;
+      if (!name || cost <= 0) return;
+      rewards.push({ id: Date.now() + Math.random(), name, cost, redeemed: false });
+      await saveRewards();
+      el('lg-reward-name').value = '';
+      el('lg-reward-cost').value = '';
+      renderRewards();
+    });
+  }
+
+  async function loadTrip() {
+    try { const raw = await store.get(TRIP_KEY); trip = raw ? JSON.parse(raw) : null; } catch (e) { trip = null; }
+    try { const raw2 = await store.get(TRIP_EXPENSES_KEY); tripExpenses = raw2 ? JSON.parse(raw2) : []; } catch (e) { tripExpenses = []; }
+  }
+  async function saveTrip() { await store.set(TRIP_KEY, JSON.stringify(trip)); }
+  async function saveTripExpenses() { await store.set(TRIP_EXPENSES_KEY, JSON.stringify(tripExpenses)); }
+
+  function isDuringTrip(date) {
+    if (!trip || !trip.start || !trip.end) return false;
+    const d = date.getTime();
+    return d >= new Date(trip.start + 'T00:00:00').getTime() && d <= new Date(trip.end + 'T23:59:59').getTime();
+  }
+
+  function tripOverlapWeeksWithGoal() {
+    if (!trip || !trip.start || !trip.end) return 0;
+    const now = new Date();
+    const tripStart = new Date(trip.start + 'T00:00:00');
+    const tripEnd = new Date(trip.end + 'T23:59:59');
+    const effectiveStart = tripStart > now ? tripStart : now;
+    const effectiveEnd = tripEnd < GOAL_DATE ? tripEnd : GOAL_DATE;
+    if (effectiveEnd <= effectiveStart) return 0;
+    return (effectiveEnd - effectiveStart) / (7 * 86400000);
+  }
+
+  function renderTripDashboard() {
+    const statusEl = el('lg-trip-status');
+    const dash = el('lg-trip-dashboard');
+    if (!trip || !trip.start || !trip.end) {
+      statusEl.textContent = 'No trip set up yet.';
+      dash.style.display = 'none';
+      el('lg-trip-pause-note').style.display = 'none';
+      return;
+    }
+    const now = new Date();
+    const start = new Date(trip.start + 'T00:00:00');
+    const end = new Date(trip.end + 'T23:59:59');
+    const totalDays = Math.max(1, Math.round((end - start) / 86400000) + 1);
+    const spent = tripExpenses.reduce((s, e) => s + e.amount, 0);
+    const budget = trip.budget || 0;
+
+    if (now < start) {
+      const daysUntil = Math.ceil((start - now) / 86400000);
+      statusEl.textContent = trip.name + ' starts in ' + daysUntil + ' day' + (daysUntil === 1 ? '' : 's') + '.';
+    } else if (now > end) {
+      statusEl.textContent = trip.name + ' ended ' + Math.floor((now - end) / 86400000) + ' day(s) ago. Total spent: ' + fmt(spent) + ' of ' + fmt(budget) + '.';
+    } else {
+      const dayNum = Math.floor((now - start) / 86400000) + 1;
+      statusEl.textContent = 'Day ' + dayNum + ' of ' + totalDays + ' — ' + trip.name + '.';
+    }
+
+    dash.style.display = 'block';
+    const pct = budget > 0 ? Math.min(100, (spent / budget) * 100) : 0;
+    el('lg-trip-bar-fill').style.width = pct + '%';
+    el('lg-trip-bar-fill').style.background = spent > budget ? '#e85c6b' : '#e0895a';
+    el('lg-trip-spent-of-budget').textContent = fmt(spent) + ' / ' + fmt(budget);
+
+    const daysElapsed = Math.max(1, Math.min(totalDays, Math.floor((Math.min(now, end) - start) / 86400000) + 1));
+    const dailyAvg = now >= start ? spent / daysElapsed : 0;
+    el('lg-trip-daily-avg').textContent = now >= start ? fmt(dailyAvg) + '/day' : '—';
+
+    const pauseNote = el('lg-trip-pause-note');
+    if (isDuringTrip(now)) {
+      pauseNote.style.display = 'block';
+      pauseNote.textContent = "You're away on " + trip.name + " — no income expected, so weekly HISA targets are paused until " + end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + '.';
+    } else {
+      pauseNote.style.display = 'none';
+    }
+  }
+
+  function renderTripExpenses() {
+    const wrap = el('lg-trip-exp-rows');
+    if (tripExpenses.length === 0) { wrap.innerHTML = '<p class="lg-empty">No trip expenses logged yet.</p>'; return; }
+    wrap.innerHTML = '';
+    tripExpenses.slice().reverse().forEach((e) => {
+      const dateLabel = new Date(e.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      const row = document.createElement('div');
+      row.className = 'lg-tx-row';
+      row.style.cursor = 'pointer';
+      row.title = 'Tap to delete';
+      row.innerHTML = '<div class="lg-tx-left"><div class="lg-tx-avatar" style="background:#e0895a;">' + (e.name.charAt(0).toUpperCase() || '?') + '</div>' +
+        '<div><p class="lg-tx-name">' + e.name + '</p><p class="lg-tx-sub">' + dateLabel + '</p></div></div>' +
+        '<span class="lg-tx-amt" style="color:#e85c6b;">-' + fmt(e.amount) + '</span>';
+      row.addEventListener('click', async () => {
+        if (!confirm('Delete this trip expense?')) return;
+        tripExpenses = tripExpenses.filter((x) => x.id !== e.id);
+        await saveTripExpenses();
+        renderTripDashboard();
+        renderTripExpenses();
+      });
+      wrap.appendChild(row);
+    });
+  }
+
+  async function initTrip() {
+    await loadTrip();
+    if (trip) {
+      el('lg-trip-name').value = trip.name || '';
+      el('lg-trip-budget').value = trip.budget || '';
+      el('lg-trip-start').value = trip.start || '';
+      el('lg-trip-end').value = trip.end || '';
+    }
+    renderTripDashboard();
+    renderTripExpenses();
+
+    el('lg-trip-save-btn').addEventListener('click', async () => {
+      const name = el('lg-trip-name').value.trim() || 'Your trip';
+      const budget = parseFloat(el('lg-trip-budget').value) || 0;
+      const start = el('lg-trip-start').value;
+      const end = el('lg-trip-end').value;
+      if (!start || !end) { alert('Set both a start and end date for your trip.'); return; }
+      trip = { name, budget, start, end };
+      await saveTrip();
+      renderTripDashboard();
+      renderAll();
+    });
+
+    el('lg-trip-exp-log-btn').addEventListener('click', async () => {
+      const name = el('lg-trip-exp-name').value.trim();
+      const amount = parseFloat(el('lg-trip-exp-amount').value) || 0;
+      if (!name || amount === 0) return;
+      tripExpenses.push({ id: Date.now() + Math.random(), name, amount, date: new Date().toISOString() });
+      await saveTripExpenses();
+      el('lg-trip-exp-name').value = '';
+      el('lg-trip-exp-amount').value = '';
+      renderTripDashboard();
+      renderTripExpenses();
+    });
+  }
+
   function renderTx() {
     const wrap = el('lg-tx-rows');
     if (entries.length === 0) { wrap.innerHTML = '<p class="lg-empty">No weeks logged yet.</p>'; return; }
@@ -683,15 +925,16 @@
     el('lg-progress-sub').textContent = fmt(total) + ' of ' + fmt(GOAL_MID);
     el('lg-bar-fill').style.width = Math.max(0, Math.min(100, (total - START_BALANCE) / (GOAL_MID - START_BALANCE) * 100)) + '%';
 
-    const requiredPerWeek = weeksToGoal > 0 ? leftToGoal / weeksToGoal : 0;
+    const requiredPerWeek = weeksToGoal > 0 ? leftToGoal / Math.max(0.1, weeksToGoal - tripOverlapWeeksWithGoal()) : 0;
     const deadlineLabel = GOAL_DATE.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    const tripNote = tripOverlapWeeksWithGoal() > 0.4 ? ' (accounting for no income during your trip)' : '';
     let paceText;
     if (leftToGoal <= 0) {
       paceText = "You've already reached the goal — nice work.";
     } else if (weeksToGoal <= 0) {
       paceText = 'The ' + deadlineLabel + ' deadline has passed.';
     } else {
-      paceText = 'Needs ~' + fmt(requiredPerWeek) + '/week saved to get there by ' + deadlineLabel + ' (' + weeksToGoal + ' weeks left).';
+      paceText = 'Needs ~' + fmt(requiredPerWeek) + '/week saved' + tripNote + ' to get there by ' + deadlineLabel + ' (' + weeksToGoal + ' weeks left).';
     }
     el('lg-required-pace').textContent = paceText;
     if (el('lg-budgets-required-pace')) el('lg-budgets-required-pace').textContent = paceText;
@@ -718,6 +961,8 @@
     renderBudgets();
     renderTx();
     renderTransactions();
+    renderTripDashboard();
+    renderRewards();
   }
 
   async function handleLog() {
@@ -852,6 +1097,7 @@
         elements: { point: { radius: 0 } }
       }
     });
+    // Apply theme-aware colors directly (color-mix in canvas context isn't reliable, so read the computed CSS var instead).
     const accent = getComputedStyle(el('lg-root')).getPropertyValue('--lg-accent').trim() || '#6f9bff';
     marketChartInstance.data.datasets[0].borderColor = accent;
     marketChartInstance.data.datasets[0].backgroundColor = accent + '33';
@@ -939,6 +1185,8 @@
     renderTabbar();
     await loadEntries();
     await loadTransactions();
+    await initTrip();
+    await initRewards();
     await initWildcards();
     await initAccounts();
     await initGoal();
