@@ -1,4 +1,4 @@
-const CACHE_NAME = 'money-plan-cache-v9';
+const CACHE_NAME = 'money-plan-cache-v15';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -8,6 +8,9 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
+// Network-first, falling back to cache when offline — and caching
+// everything (including Google Fonts) as it's successfully fetched,
+// so the app keeps working once you've opened it at least once online.
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   event.respondWith(
