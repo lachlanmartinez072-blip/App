@@ -20,6 +20,14 @@
   .lg-root {
     --lg-radius: 22px;
     --lg-blur: 22px;
+    --lg-font-display: 'Sora', sans-serif;
+    --lg-glass: rgba(255,255,255,0.08);
+    --lg-glass-border: rgba(255,255,255,0.16);
+    --lg-text: #eef0ff;
+    --lg-text-soft: rgba(238,240,255,0.65);
+    --lg-accent: #6f9bff;
+    --lg-accent2: #9a7bff;
+    --lg-bg-grad: radial-gradient(circle at 22% 18%, #3a4bd6 0%, transparent 45%), radial-gradient(circle at 80% 82%, #7a3ad1 0%, transparent 50%), #10123a;
     font-family: 'Inter', sans-serif;
     padding: 1rem 0.75rem 100px;
     max-width: 480px;
@@ -192,3 +200,755 @@
           <option value="Subscription"></option>
           <option value="Travel"></option>
           <option value="Transport"></option>
+          <option value="Fun"></option>
+          <option value="Shopping"></option>
+          <option value="Bills"></option>
+          <option value="Other"></option>
+        </datalist>
+      </div>
+      <button class="lg-log-btn" id="lg-txn-log-btn">Log transaction</button>
+    </div>
+
+    <div class="lg-card">
+      <p class="lg-section-title">All transactions</p>
+      <div id="lg-txn-rows"><p class="lg-empty">No transactions logged yet.</p></div>
+    </div>
+
+    <div class="lg-card">
+      <p class="lg-section-title">Weekly log history</p>
+      <div id="lg-tx-rows"><p class="lg-empty">No weeks logged yet.</p></div>
+    </div>
+  </div>
+
+  <!-- ============ BUDGETS ============ -->
+  <div class="lg-page" id="page-budgets">
+    <div class="lg-card">
+      <p class="lg-section-title">Budgets — last logged week</p>
+      <p class="lg-goal-sub" id="lg-budgets-required-pace" style="margin-bottom:10px;"></p>
+      <div id="lg-budget-rows"></div>
+    </div>
+  </div>
+
+  <!-- ============ INVEST ============ -->
+  <div class="lg-page" id="page-invest">
+    <div class="lg-card">
+      <p class="lg-section-title">Your investment profile</p>
+      <p class="lg-goal-sub" style="margin-bottom:10px;">This just guides the tips you see here — it doesn't restrict anything.</p>
+      <div class="lg-field" style="margin-bottom:10px;">
+        <label>Risk tolerance</label>
+        <select id="lg-inv-risk" style="width:100%; height:36px; border-radius:12px; border:1px solid var(--lg-glass-border); background:color-mix(in srgb, var(--lg-text) 6%, transparent); color:var(--lg-text); font-family:'Inter',sans-serif; font-weight:600; font-size:13px; padding:0 8px;">
+          <option value="conservative">Conservative — smoother ride, lower expected return</option>
+          <option value="balanced">Balanced — a mix of shares and bonds</option>
+          <option value="growth">Growth — mostly shares, more ups and downs</option>
+        </select>
+      </div>
+      <div class="lg-field" style="margin-bottom:10px;"><label>Monthly investing target</label><input type="number" id="lg-inv-monthly" placeholder="300"/></div>
+      <div class="lg-field" style="margin-bottom:10px;"><label>Notes to self (preferred ETF, broker, reminders)</label><input type="text" id="lg-inv-notes" placeholder="e.g. VDHG via Pearler"/></div>
+      <button class="lg-save-btn" id="lg-inv-save-btn">Save profile</button>
+    </div>
+
+    <div class="lg-card">
+      <p class="lg-section-title">Market snapshot</p>
+      <p class="lg-goal-sub" style="margin-bottom:10px;">Needs a free Alpha Vantage API key (alphavantage.co/support/#api-key — takes 30 seconds, no payment) and works only when you're online.</p>
+      <div class="lg-form-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="lg-field"><label>API key</label><input type="text" id="lg-mkt-key" placeholder="paste key"/></div>
+        <div class="lg-field"><label>Ticker</label><input type="text" id="lg-mkt-ticker" placeholder="STW"/></div>
+      </div>
+      <button class="lg-save-btn" id="lg-mkt-load-btn" style="margin-bottom:10px;">Load chart</button>
+      <p class="lg-goal-sub" style="margin:0 0 6px;">Suggested ETFs (tap to fill in ticker):</p>
+      <div class="lg-pill-row" id="lg-mkt-suggestions">
+        <button class="lg-pill" data-ticker="STW" style="cursor:pointer;border:none;"><strong>STW</strong> — ASX 200</button>
+        <button class="lg-pill" data-ticker="IOZ" style="cursor:pointer;border:none;"><strong>IOZ</strong> — ASX 200</button>
+        <button class="lg-pill" data-ticker="A200" style="cursor:pointer;border:none;"><strong>A200</strong> — ASX 200</button>
+        <button class="lg-pill" data-ticker="VAS" style="cursor:pointer;border:none;"><strong>VAS</strong> — ASX 300</button>
+        <button class="lg-pill" data-ticker="VGS" style="cursor:pointer;border:none;"><strong>VGS</strong> — Global ex-AU</button>
+        <button class="lg-pill" data-ticker="IVV" style="cursor:pointer;border:none;"><strong>IVV</strong> — S&amp;P 500</button>
+        <button class="lg-pill" data-ticker="NDQ" style="cursor:pointer;border:none;"><strong>NDQ</strong> — Nasdaq 100</button>
+        <button class="lg-pill" data-ticker="VDHG" style="cursor:pointer;border:none;"><strong>VDHG</strong> — Diversified growth</button>
+        <button class="lg-pill" data-ticker="DHHF" style="cursor:pointer;border:none;"><strong>DHHF</strong> — Diversified growth (low fee)</button>
+        <button class="lg-pill" data-ticker="VHY" style="cursor:pointer;border:none;"><strong>VHY</strong> — AU high dividend</button>
+        <button class="lg-pill" data-ticker="VAP" style="cursor:pointer;border:none;"><strong>VAP</strong> — AU property (REITs)</button>
+        <button class="lg-pill" data-ticker="GOLD" style="cursor:pointer;border:none;"><strong>GOLD</strong> — Gold bullion</button>
+      </div>
+      <div class="lg-pill-row" id="lg-mkt-ranges" style="margin-top:10px;">
+        <button class="lg-pill" data-range="1M" style="cursor:pointer;border:none;">1M</button>
+        <button class="lg-pill" data-range="3M" style="cursor:pointer;border:none;">3M</button>
+        <button class="lg-pill" data-range="6M" style="cursor:pointer;border:none;">6M</button>
+        <button class="lg-pill" data-range="1Y" style="cursor:pointer;border:none;">1Y</button>
+        <button class="lg-pill" data-range="5Y" style="cursor:pointer;border:none;">5Y</button>
+        <button class="lg-pill" data-range="MAX" style="cursor:pointer;border:none;">Max</button>
+      </div>
+      <div style="position:relative; width:100%; height:220px; margin-top:6px;">
+        <canvas id="lg-mkt-chart"></canvas>
+      </div>
+      <p class="lg-goal-sub" id="lg-mkt-status" style="margin-top:8px;">Enter your key and ticker, then tap Load chart.</p>
+      <p class="lg-goal-sub" style="margin-top:6px;">Default suggestion: <strong>STW</strong> (SPDR S&amp;P/ASX 200 ETF) tracks the ASX200 closely since the index itself often isn't available on free data plans. If a ticker doesn't load, try another ASX200-tracking ETF (e.g. IOZ, A200).</p>
+    </div>
+
+    <div class="lg-card">
+      <p class="lg-section-title">Getting started with investing</p>
+      <div class="lg-goal-card"><div><p class="lg-goal-label">What's an ETF?</p><p class="lg-goal-sub">A single fund that holds hundreds of companies at once — buying one share buys you a slice of all of them, which is why it's already diversified.</p></div></div>
+      <div class="lg-goal-card"><div><p class="lg-goal-label">Dollar-cost averaging</p><p class="lg-goal-sub">Investing a fixed amount on a regular schedule, regardless of price — smooths out the "did I buy at a bad time" worry.</p></div></div>
+      <div class="lg-goal-card"><div><p class="lg-goal-label">Time in the market &gt; timing it</p><p class="lg-goal-sub">Trying to predict dips tends to underperform just staying invested consistently, especially over 5+ year horizons.</p></div></div>
+      <div class="lg-goal-card"><div><p class="lg-goal-label">Where to actually buy</p><p class="lg-goal-sub">Australian brokers with low/no fees on recurring buys include Pearler, CommSec Pocket, Stake, and Selfwealth — worth comparing before picking one.</p></div></div>
+    </div>
+  </div>
+
+  <!-- ============ NET WORTH ============ -->
+  <div class="lg-page" id="page-networth">
+    <div class="lg-card">
+      <p class="lg-eyebrow">Everything, added up</p>
+      <p class="lg-hero-num" id="lg-nw-total">$50,000</p>
+      <p class="lg-hero-sub">This is the number that matters — not any single account balance.</p>
+      <p class="lg-hero-sub" id="lg-nw-asof">Never updated</p>
+    </div>
+
+    <div class="lg-card">
+      <p class="lg-section-title">Your goal</p>
+      <p class="lg-goal-sub" style="margin-bottom:10px;">Change this anytime — every number in the app (progress bar, pace, rings) updates to match.</p>
+      <div class="lg-form-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="lg-field"><label>Target amount</label><input type="number" id="lg-goal-amount" placeholder="85000"/></div>
+        <div class="lg-field"><label>Target date</label><input type="date" id="lg-goal-date"/></div>
+      </div>
+      <button class="lg-save-btn" id="lg-goal-save-btn">Update goal</button>
+    </div>
+
+    <div class="lg-card">
+      <p class="lg-section-title">Goals</p>
+      <p class="lg-goal-sub" style="margin-bottom:10px;" id="lg-level-label">Level 1 · 0/4 weeks</p>
+      <div class="lg-bar-track" style="margin-bottom:14px;"><div class="lg-bar-fill" id="lg-xp-fill" style="width:0%; background: var(--lg-accent);"></div></div>
+      <div class="lg-goal-card">
+        <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" stroke="color-mix(in srgb, var(--lg-text) 15%, transparent)" stroke-width="6" fill="none"/><circle id="lg-ring-year" cx="28" cy="28" r="24" stroke="var(--lg-accent)" stroke-width="6" fill="none" stroke-linecap="round" transform="rotate(-90 28 28)"/></svg>
+        <div><p class="lg-goal-label">Year-end goal</p><p class="lg-goal-sub" id="lg-year-sub">$50,000 of $85,000</p></div>
+      </div>
+      <div class="lg-goal-card">
+        <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" stroke="color-mix(in srgb, var(--lg-text) 15%, transparent)" stroke-width="6" fill="none"/><circle id="lg-ring-house" cx="28" cy="28" r="24" stroke="var(--lg-accent2)" stroke-width="6" fill="none" stroke-linecap="round" transform="rotate(-90 28 28)"/></svg>
+        <div><p class="lg-goal-label">House deposit (6yr)</p><p class="lg-goal-sub" id="lg-house-sub">$0 of $46,495</p></div>
+      </div>
+      <p class="lg-goal-sub" style="margin-top:10px;">Worth a look: the First Home Super Saver Scheme lets you contribute toward this goal through super at a lower tax rate — trades some flexibility for a real tax saving.</p>
+    </div>
+
+    <div class="lg-card">
+      <p class="lg-section-title">Wildcards</p>
+      <p class="lg-goal-sub" style="margin-bottom:10px;">Kept separate so your everyday numbers stay honest. Flip on only once the money's actually landed.</p>
+      <div class="lg-goal-card" style="justify-content:space-between;">
+        <div><p class="lg-goal-label">Grandma's 21st gift</p><p class="lg-goal-sub">$15,000 — if it arrives in time</p></div>
+        <input type="checkbox" id="lg-wc-grandma" style="width:22px; height:22px; accent-color: var(--lg-accent);"/>
+      </div>
+      <div class="lg-goal-card" style="justify-content:space-between;">
+        <div><p class="lg-goal-label">Parents' $10k</p><p class="lg-goal-sub">Earmarked for a purchase — leave off unless redirected</p></div>
+        <input type="checkbox" id="lg-wc-parents" style="width:22px; height:22px; accent-color: var(--lg-accent);"/>
+      </div>
+    </div>
+
+    <div class="lg-card">
+      <p class="lg-section-title">Update your real balances</p>
+      <p class="lg-goal-sub" style="margin-bottom:10px;">Check your actual bank and broker apps, then update these here — as often as roughly weekly is plenty.</p>
+      <div class="lg-field" style="margin-bottom:10px;"><label>Savings (HISA)</label><input type="number" id="lg-acc-hisa" placeholder="50000"/></div>
+      <div class="lg-field" style="margin-bottom:10px;"><label>Investing (ETF / broker)</label><input type="number" id="lg-acc-etf" placeholder="0"/></div>
+      <div class="lg-field" style="margin-bottom:10px;"><label>Other / misc</label><input type="number" id="lg-acc-other" placeholder="0"/></div>
+      <button class="lg-save-btn" id="lg-acc-save-btn">Update balances</button>
+    </div>
+    <div class="lg-card">
+      <p class="lg-section-title">Included automatically</p>
+      <p class="lg-goal-sub" id="lg-nw-wildcard-note">No wildcards currently counted — toggle them above once they've landed.</p>
+    </div>
+    <div class="lg-reset"><button id="lg-reset-btn">Reset all logged data</button></div>
+  </div>
+
+  <div class="lg-tabbar">
+    <div class="lg-tabbar-inner" id="lg-tabbar-inner"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const START_BALANCE = 50000;
+  let GOAL_MID = 85000;
+  let GOAL_DATE = new Date('2026-12-31T23:59:59');
+  const PLAN_START = new Date('2026-07-10T00:00:00');
+  const TARGET_HISA_LOW = 300, TARGET_HISA_HIGH = 900, TARGET_INVEST = 125;
+  const ANNUAL_RATE = 0.05;
+  const HOUSE_TARGET = 46495;
+  const CAPS = { food: 150, transport: 60, fun: 50, other: 40 };
+  const STORAGE_KEY = 'liquid-budget-entries';
+  const THEME_KEY = 'liquid-budget-theme';
+  const WILDCARD_KEY = 'liquid-budget-wildcards';
+  const LAST_OPEN_KEY = 'liquid-budget-last-open';
+  const ACCOUNTS_KEY = 'liquid-budget-accounts';
+  const INCOME_KEY = 'liquid-budget-income-input';
+  const INVEST_PROFILE_KEY = 'liquid-budget-invest-profile';
+  const MARKET_KEY_STORAGE = 'liquid-budget-market-key';
+  const MARKET_TICKER_STORAGE = 'liquid-budget-market-ticker';
+  const GOAL_KEY = 'liquid-budget-goal';
+  const TXN_KEY = 'liquid-budget-transactions';
+  const ANCHOR_DATE = new Date('2026-08-13T00:00:00');
+
+  function weekIndexForDate(d) { return Math.floor((d - ANCHOR_DATE) / (7 * 86400000)); }
+  function isHighWeekForDate(d) { const idx = weekIndexForDate(d); return (((idx % 2) + 2) % 2) === 1; }
+  function currentWeekHisaTarget() { return isHighWeekForDate(new Date()) ? TARGET_HISA_HIGH : TARGET_HISA_LOW; }
+
+  function targetHisaFor(i) { return i % 2 === 0 ? TARGET_HISA_LOW : TARGET_HISA_HIGH; }
+  function targetCombinedFor(i) { return targetHisaFor(i); }
+  const fmt = (n) => '$' + Math.round(n).toLocaleString();
+  const el = (id) => document.getElementById(id);
+
+  const THEMES = {
+    nebula: { name: 'Nebula', font: "'Sora', sans-serif", bg: 'radial-gradient(circle at 22% 18%, #3a4bd6 0%, transparent 45%), radial-gradient(circle at 80% 82%, #7a3ad1 0%, transparent 50%), #10123a', glass: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.16)', text: '#eef0ff', textSoft: 'rgba(238,240,255,0.65)', accent: '#6f9bff', accent2: '#9a7bff' }
+  };
+
+  const TABS = [
+    { id: 'home', label: 'Home', icon: '<path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/>' },
+    { id: 'activity', label: 'Activity', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>' },
+    { id: 'budgets', label: 'Budgets', icon: '<circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/>' },
+    { id: 'invest', label: 'Invest', icon: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>' },
+    { id: 'networth', label: 'Net Worth', icon: '<rect x="3" y="13" width="4" height="7"/><rect x="10" y="9" width="4" height="11"/><rect x="17" y="5" width="4" height="15"/>' }
+  ];
+
+  const store = {
+    async get(key) {
+      if (window.storage && typeof window.storage.get === 'function') {
+        try { const r = await window.storage.get(key, false); return r ? r.value : null; } catch (e) {}
+      }
+      try { return localStorage.getItem(key); } catch (e) { return null; }
+    },
+    async set(key, value) {
+      if (window.storage && typeof window.storage.set === 'function') {
+        try { await window.storage.set(key, value, false); return; } catch (e) {}
+      }
+      try { localStorage.setItem(key, value); } catch (e) {}
+    }
+  };
+
+  let entries = [];
+  let transactions = [];
+  let currentTheme = 'nebula';
+  let currentTab = 'home';
+  let wildcards = { grandma: false, parents: false };
+  let accounts = null;
+
+  function applyTheme(key) {
+    currentTheme = key;
+    const t = THEMES[key];
+    const root = el('lg-root');
+    root.style.setProperty('--lg-font-display', t.font);
+    root.style.setProperty('--lg-glass', t.glass);
+    root.style.setProperty('--lg-glass-border', t.border);
+    root.style.setProperty('--lg-text', t.text);
+    root.style.setProperty('--lg-text-soft', t.textSoft);
+    root.style.setProperty('--lg-accent', t.accent);
+    root.style.setProperty('--lg-accent2', t.accent2);
+    root.style.setProperty('--lg-bg-grad', t.bg);
+  }
+
+  function renderTabbar() {
+    const wrap = el('lg-tabbar-inner');
+    wrap.innerHTML = '';
+    TABS.forEach((tab) => {
+      const btn = document.createElement('button');
+      btn.className = 'lg-tab-btn' + (tab.id === currentTab ? ' active' : '');
+      btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">' + tab.icon + '</svg><span>' + tab.label + '</span>';
+      btn.addEventListener('click', () => switchTab(tab.id));
+      wrap.appendChild(btn);
+    });
+  }
+
+  function switchTab(id) {
+    currentTab = id;
+    document.querySelectorAll('.lg-page').forEach((p) => p.classList.remove('active'));
+    el('page-' + id).classList.add('active');
+    window.scrollTo(0, 0);
+    renderTabbar();
+  }
+
+  async function loadEntries() {
+    try { const raw = await store.get(STORAGE_KEY); entries = raw ? JSON.parse(raw) : []; } catch (e) { entries = []; }
+  }
+  async function saveEntries() { await store.set(STORAGE_KEY, JSON.stringify(entries)); }
+
+  function computeStreak() {
+    let streak = 0;
+    for (let i = entries.length - 1; i >= 0; i--) {
+      if (entries[i].saved >= targetCombinedFor(i)) streak++; else break;
+    }
+    return streak;
+  }
+
+  function computedEstimate() {
+    const cumulativeSaved = entries.reduce((s, e) => s + e.saved, 0);
+    const cumulativeInvested = entries.reduce((s, e) => s + e.invested, 0);
+    const now = new Date();
+    const daysSinceStart = Math.max(0, (now - PLAN_START) / 86400000);
+    const estInterest = START_BALANCE * ANNUAL_RATE * (daysSinceStart / 365);
+    return { hisa: Math.round(START_BALANCE + cumulativeSaved + estInterest), etf: Math.round(cumulativeInvested) };
+  }
+
+  function wildcardTotal() { return (wildcards.grandma ? 15000 : 0) + (wildcards.parents ? 10000 : 0); }
+
+  function netWorthTotal() {
+    const acc = accounts || computedEstimate();
+    return (acc.hisa || 0) + (acc.etf || 0) + (acc.other || 0) + wildcardTotal();
+  }
+
+  function setRing(id, pct, r) {
+    const circ = 2 * Math.PI * r;
+    const clamped = Math.max(0, Math.min(100, pct));
+    const circle = el(id);
+    circle.setAttribute('stroke-dasharray', circ.toFixed(1));
+    circle.setAttribute('stroke-dashoffset', (circ * (1 - clamped / 100)).toFixed(1));
+  }
+
+  function renderBudgets() {
+    const last = entries.length ? entries[entries.length - 1] : { food: 0, transport: 0, fun: 0, other: 0 };
+    const wrap = el('lg-budget-rows');
+    wrap.innerHTML = '';
+    [['food', 'Food'], ['transport', 'Transport'], ['fun', 'Fun'], ['other', 'Other']].forEach(([key, label]) => {
+      const spent = last[key] || 0;
+      const cap = CAPS[key];
+      const pct = Math.min(100, (spent / cap) * 100);
+      const over = spent > cap;
+      const row = document.createElement('div');
+      row.className = 'lg-budget-row';
+      row.innerHTML = '<div class="lg-budget-top"><span>' + label + '</span><span>' + fmt(spent) + ' / ' + fmt(cap) + '</span></div>' +
+        '<div class="lg-bar-track" style="height:8px;"><div class="lg-bar-fill" style="width:' + pct + '%; background:' + (over ? '#e85c6b' : 'var(--lg-accent)') + '"></div></div>';
+      wrap.appendChild(row);
+    });
+  }
+
+  const TXN_PALETTE = ['#6f9bff', '#e85c6b', '#4fae7a', '#e0895a', '#9a7bff', '#f4b400', '#5ec9c9', '#c96f9a'];
+  function colorForCategory(cat) {
+    const key = (cat || 'other').trim().toLowerCase();
+    let hash = 0;
+    for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+    return TXN_PALETTE[hash % TXN_PALETTE.length];
+  }
+
+  async function loadTransactions() {
+    try { const raw = await store.get(TXN_KEY); transactions = raw ? JSON.parse(raw) : []; } catch (e) { transactions = []; }
+  }
+  async function saveTransactions() { await store.set(TXN_KEY, JSON.stringify(transactions)); }
+
+  function renderTransactions() {
+    const wrap = el('lg-txn-rows');
+    if (transactions.length === 0) { wrap.innerHTML = '<p class="lg-empty">No transactions logged yet.</p>'; return; }
+    wrap.innerHTML = '';
+    transactions.slice().reverse().forEach((t) => {
+      const initial = (t.name || '?').trim().charAt(0).toUpperCase() || '?';
+      const dateLabel = new Date(t.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      const row = document.createElement('div');
+      row.className = 'lg-tx-row';
+      row.innerHTML = '<div class="lg-tx-left"><div class="lg-tx-avatar" style="background:' + colorForCategory(t.category) + '">' + initial + '</div>' +
+        '<div><p class="lg-tx-name">' + t.name + '</p><p class="lg-tx-sub">' + (t.category || 'Other') + ' · ' + dateLabel + '</p></div></div>' +
+        '<span class="lg-tx-amt" style="color:#e85c6b;">-' + fmt(t.amount) + '</span>';
+      row.style.cursor = 'pointer';
+      row.title = 'Tap to delete';
+      row.addEventListener('click', async () => {
+        if (!confirm('Delete this transaction?')) return;
+        transactions = transactions.filter((x) => x.id !== t.id);
+        await saveTransactions();
+        renderTransactions();
+      });
+      wrap.appendChild(row);
+    });
+  }
+
+  async function handleLogTransaction() {
+    const name = el('lg-txn-name').value.trim();
+    const amount = parseFloat(el('lg-txn-amount').value) || 0;
+    const category = el('lg-txn-category').value.trim() || 'Other';
+    if (!name || amount === 0) return;
+
+    transactions.push({ id: Date.now() + Math.random(), name, amount, category, date: new Date().toISOString() });
+    await saveTransactions();
+
+    el('lg-txn-name').value = '';
+    el('lg-txn-amount').value = '';
+    el('lg-txn-category').value = '';
+    renderTransactions();
+  }
+
+  function renderTx() {
+    const wrap = el('lg-tx-rows');
+    if (entries.length === 0) { wrap.innerHTML = '<p class="lg-empty">No weeks logged yet.</p>'; return; }
+    wrap.innerHTML = '';
+    const colors = ['#ff8a70', '#6f9bff', '#4fae7a', '#e0895a', '#9a7bff'];
+    entries.slice().reverse().forEach((e, idx) => {
+      const weekNum = entries.length - idx;
+      const spent = e.food + e.transport + e.fun + e.other;
+      const net = e.saved + e.invested - spent;
+      const row = document.createElement('div');
+      row.className = 'lg-tx-row';
+      row.innerHTML = '<div class="lg-tx-left"><div class="lg-tx-avatar" style="background:' + colors[idx % colors.length] + '">W' + weekNum + '</div>' +
+        '<div><p class="lg-tx-name">Week ' + weekNum + '</p><p class="lg-tx-sub">Spent ' + fmt(spent) + ' · saved ' + fmt(e.saved) + ' · invested ' + fmt(e.invested) + '</p></div></div>' +
+        '<span class="lg-tx-amt" style="color:' + (net >= 0 ? 'var(--lg-accent2)' : '#e85c6b') + '">' + (net >= 0 ? '+' : '') + fmt(net) + '</span>';
+      wrap.appendChild(row);
+    });
+  }
+
+  function renderSplitBar() {
+    const hisaTarget = currentWeekHisaTarget();
+    const isHigh = hisaTarget === TARGET_HISA_HIGH;
+    el('lg-week-type-label').textContent = isHigh
+      ? 'This is a $900 fortnightly week (the bigger paycheck).'
+      : 'This is a $300 fortnightly week (the smaller paycheck).';
+    el('lg-income-input').placeholder = String(300 + hisaTarget);
+    el('lg-saved').placeholder = String(hisaTarget);
+    el('lg-log-hint').textContent = 'Expected this week: ' + fmt(hisaTarget);
+    el('lg-split-save').textContent = fmt(hisaTarget);
+
+    const incomeRaw = el('lg-income-input').value;
+    const income = incomeRaw !== '' ? (parseFloat(incomeRaw) || 0) : (300 + hisaTarget);
+    const spend = income - hisaTarget;
+
+    el('lg-split-spend').textContent = fmt(spend);
+    const warnEl = el('lg-split-warning');
+    if (spend < 0) {
+      warnEl.style.display = 'block';
+      warnEl.textContent = "This week's income doesn't cover the HISA target — spend would go negative. Consider trimming savings or spending this week.";
+    } else {
+      warnEl.style.display = 'none';
+    }
+
+    const spendForBar = Math.max(0, spend);
+    const total = Math.max(1, spendForBar + hisaTarget);
+    const bar = el('lg-split-bar');
+    bar.innerHTML =
+      '<div style="width:' + (spendForBar / total * 100) + '%; background:#e85c6b;"></div>' +
+      '<div style="width:' + (hisaTarget / total * 100) + '%; background:var(--lg-accent);"></div>';
+  }
+
+  async function initIncomeInput() {
+    const currentIdx = weekIndexForDate(new Date());
+    try {
+      const raw = await store.get(INCOME_KEY);
+      const saved = raw ? JSON.parse(raw) : null;
+      if (saved && saved.weekIndex === currentIdx) el('lg-income-input').value = saved.amount;
+    } catch (e) {}
+    el('lg-income-input').addEventListener('input', async () => {
+      const val = parseFloat(el('lg-income-input').value) || 0;
+      await store.set(INCOME_KEY, JSON.stringify({ weekIndex: currentIdx, amount: val }));
+      renderSplitBar();
+    });
+  }
+
+  async function initGoal() {
+    try {
+      const raw = await store.get(GOAL_KEY);
+      const saved = raw ? JSON.parse(raw) : null;
+      if (saved) {
+        GOAL_MID = saved.amount;
+        GOAL_DATE = new Date(saved.date + 'T23:59:59');
+      }
+    } catch (e) {}
+    el('lg-goal-amount').value = GOAL_MID;
+    el('lg-goal-date').value = GOAL_DATE.toISOString().slice(0, 10);
+
+    el('lg-goal-save-btn').addEventListener('click', async () => {
+      const newAmount = parseFloat(el('lg-goal-amount').value) || GOAL_MID;
+      const newDateStr = el('lg-goal-date').value;
+      GOAL_MID = newAmount;
+      GOAL_DATE = new Date(newDateStr + 'T23:59:59');
+      await store.set(GOAL_KEY, JSON.stringify({ amount: newAmount, date: newDateStr }));
+      const btn = el('lg-goal-save-btn');
+      const original = btn.textContent;
+      btn.textContent = 'Saved ✓';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+      renderAll();
+    });
+  }
+
+  function renderAll() {
+    const streak = computeStreak();
+    const total = netWorthTotal();
+    const weeksToGoal = Math.max(0, Math.round((GOAL_DATE - new Date()) / (7 * 86400000)));
+
+    el('lg-goal-label').textContent = 'Left to reach your ' + fmt(GOAL_MID) + ' goal';
+    el('lg-networth-hero').textContent = fmt(total);
+    el('lg-nw-total').textContent = fmt(total);
+    el('lg-streak-pill').textContent = streak + '-week streak';
+    el('lg-countdown-pill').textContent = weeksToGoal + ' weeks to goal';
+
+    if (accounts && accounts.updatedAt) {
+      const d = new Date(accounts.updatedAt);
+      const label = 'Last updated ' + d.toLocaleDateString();
+      el('lg-networth-asof').textContent = label;
+      el('lg-nw-asof').textContent = label;
+    } else {
+      el('lg-networth-asof').textContent = 'Estimated from your logged weeks — update real balances in Net Worth';
+      el('lg-nw-asof').textContent = 'Never manually updated — figures below are estimated from your logged weeks';
+    }
+
+    const leftToGoal = Math.max(0, GOAL_MID - total);
+    el('lg-left-to-goal').textContent = fmt(leftToGoal);
+    el('lg-progress-sub').textContent = fmt(total) + ' of ' + fmt(GOAL_MID);
+    el('lg-bar-fill').style.width = Math.max(0, Math.min(100, (total - START_BALANCE) / (GOAL_MID - START_BALANCE) * 100)) + '%';
+
+    const requiredPerWeek = weeksToGoal > 0 ? leftToGoal / weeksToGoal : 0;
+    const deadlineLabel = GOAL_DATE.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+    let paceText;
+    if (leftToGoal <= 0) {
+      paceText = "You've already reached the goal — nice work.";
+    } else if (weeksToGoal <= 0) {
+      paceText = 'The ' + deadlineLabel + ' deadline has passed.';
+    } else {
+      paceText = 'Needs ~' + fmt(requiredPerWeek) + '/week saved to get there by ' + deadlineLabel + ' (' + weeksToGoal + ' weeks left).';
+    }
+    el('lg-required-pace').textContent = paceText;
+    if (el('lg-budgets-required-pace')) el('lg-budgets-required-pace').textContent = paceText;
+
+    renderSplitBar();
+
+    const level = Math.floor(entries.length / 4) + 1;
+    const xp = entries.length % 4;
+    el('lg-level-label').textContent = 'Level ' + level + ' · ' + xp + '/4 weeks to next level';
+    el('lg-xp-fill').style.width = (xp / 4 * 100) + '%';
+
+    setRing('lg-ring-year', (total - START_BALANCE) / (GOAL_MID - START_BALANCE) * 100, 24);
+    el('lg-year-sub').textContent = fmt(total) + ' of ' + fmt(GOAL_MID);
+
+    const acc = accounts || computedEstimate();
+    setRing('lg-ring-house', (acc.etf || 0) / HOUSE_TARGET * 100, 24);
+    el('lg-house-sub').textContent = fmt(acc.etf || 0) + ' of ' + fmt(HOUSE_TARGET);
+
+    const wct = wildcardTotal();
+    el('lg-nw-wildcard-note').textContent = wct > 0
+      ? ('Currently counting ' + fmt(wct) + ' in wildcards toward your total (toggled on in Goals).')
+      : 'No wildcards currently counted — toggle them above once they\'ve landed.';
+
+    renderBudgets();
+    renderTx();
+    renderTransactions();
+  }
+
+  async function handleLog() {
+    const food = parseFloat(el('lg-food').value) || 0;
+    const transport = parseFloat(el('lg-transport').value) || 0;
+    const fun = parseFloat(el('lg-fun').value) || 0;
+    const other = parseFloat(el('lg-other').value) || 0;
+    const saved = parseFloat(el('lg-saved').value) || 0;
+    const invested = parseFloat(el('lg-invested').value) || 0;
+    if (food + transport + fun + other + saved + invested === 0) return;
+
+    entries.push({ food, transport, fun, other, saved, invested, loggedAt: new Date().toISOString() });
+    await saveEntries();
+
+    const target = targetCombinedFor(entries.length - 1);
+    const fb = el('lg-feedback');
+    fb.className = 'lg-feedback show';
+    fb.style.background = saved >= target ? 'color-mix(in srgb, var(--lg-accent2) 20%, transparent)' : 'color-mix(in srgb, #e85c6b 20%, transparent)';
+    fb.textContent = saved >= target ? 'Nice — you hit this week\'s HISA target.' : 'Logged — a bit under the HISA target this week, still counts.';
+
+    ['lg-food', 'lg-transport', 'lg-fun', 'lg-other', 'lg-saved', 'lg-invested'].forEach((id) => { el(id).value = ''; });
+    renderAll();
+  }
+
+  async function handleReset() {
+    if (!confirm('Reset all logged weeks? This cannot be undone.')) return;
+    entries = [];
+    await saveEntries();
+    el('lg-feedback').className = 'lg-feedback';
+    renderAll();
+  }
+
+  function renderCheckinNudge() {
+    const msgEl = el('lg-checkin-msg');
+    store.get(LAST_OPEN_KEY).then((raw) => {
+      const last = raw ? new Date(raw) : null;
+      const now = new Date();
+      if (last) {
+        const daysSince = (now - last) / 86400000;
+        if (daysSince < 3) msgEl.textContent = "Checked in very recently — the plan runs itself, no need to watch it daily.";
+        else if (daysSince < 10) msgEl.textContent = 'Good rhythm — roughly weekly is exactly the right pace.';
+        else msgEl.textContent = "It's been a while. Log a few weeks and move on with your day.";
+      } else {
+        msgEl.textContent = 'First time here — log your week, then close the app.';
+      }
+      store.set(LAST_OPEN_KEY, now.toISOString());
+    });
+  }
+
+  async function initWildcards() {
+    try { const raw = await store.get(WILDCARD_KEY); wildcards = raw ? JSON.parse(raw) : { grandma: false, parents: false }; }
+    catch (e) { wildcards = { grandma: false, parents: false }; }
+    el('lg-wc-grandma').checked = !!wildcards.grandma;
+    el('lg-wc-parents').checked = !!wildcards.parents;
+    el('lg-wc-grandma').addEventListener('change', async (e) => { wildcards.grandma = e.target.checked; await store.set(WILDCARD_KEY, JSON.stringify(wildcards)); renderAll(); });
+    el('lg-wc-parents').addEventListener('change', async (e) => { wildcards.parents = e.target.checked; await store.set(WILDCARD_KEY, JSON.stringify(wildcards)); renderAll(); });
+  }
+
+  async function initAccounts() {
+    try { const raw = await store.get(ACCOUNTS_KEY); accounts = raw ? JSON.parse(raw) : null; } catch (e) { accounts = null; }
+    const est = computedEstimate();
+    el('lg-acc-hisa').value = accounts ? accounts.hisa : est.hisa;
+    el('lg-acc-etf').value = accounts ? accounts.etf : est.etf;
+    el('lg-acc-other').value = accounts ? accounts.other : 0;
+
+    el('lg-acc-save-btn').addEventListener('click', async () => {
+      accounts = {
+        hisa: parseFloat(el('lg-acc-hisa').value) || 0,
+        etf: parseFloat(el('lg-acc-etf').value) || 0,
+        other: parseFloat(el('lg-acc-other').value) || 0,
+        updatedAt: new Date().toISOString()
+      };
+      await store.set(ACCOUNTS_KEY, JSON.stringify(accounts));
+      renderAll();
+    });
+  }
+
+  let marketSeries = null; // [{date, close}, ...] sorted ascending, cached after a successful fetch
+  let marketChartInstance = null;
+  let activeRange = '1Y';
+
+  async function initInvestProfile() {
+    let profile = null;
+    try { const raw = await store.get(INVEST_PROFILE_KEY); profile = raw ? JSON.parse(raw) : null; } catch (e) {}
+    if (profile) {
+      el('lg-inv-risk').value = profile.risk || 'balanced';
+      el('lg-inv-monthly').value = profile.monthly != null ? profile.monthly : 300;
+      el('lg-inv-notes').value = profile.notes || '';
+    } else {
+      el('lg-inv-monthly').value = 300;
+    }
+    el('lg-inv-save-btn').addEventListener('click', async () => {
+      const p = { risk: el('lg-inv-risk').value, monthly: parseFloat(el('lg-inv-monthly').value) || 0, notes: el('lg-inv-notes').value };
+      await store.set(INVEST_PROFILE_KEY, JSON.stringify(p));
+      const btn = el('lg-inv-save-btn');
+      const original = btn.textContent;
+      btn.textContent = 'Saved ✓';
+      setTimeout(() => { btn.textContent = original; }, 1500);
+    });
+  }
+
+  function filterSeriesByRange(series, range) {
+    if (!series || series.length === 0) return [];
+    if (range === 'MAX') return series;
+    const days = { '1M': 31, '3M': 93, '6M': 186, '1Y': 366, '5Y': 1830 }[range] || 366;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    return series.filter((p) => new Date(p.date) >= cutoff);
+  }
+
+  function renderMarketChart() {
+    const points = filterSeriesByRange(marketSeries, activeRange);
+    const ctx = el('lg-mkt-chart');
+    if (marketChartInstance) marketChartInstance.destroy();
+    if (!points.length) return;
+    marketChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: points.map((p) => p.date),
+        datasets: [{
+          data: points.map((p) => p.close),
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { display: false },
+          y: { ticks: { color: '#8892c9' }, grid: { color: 'rgba(150,150,180,0.12)' } }
+        },
+        elements: { point: { radius: 0 } }
+      }
+    });
+    const accent = getComputedStyle(el('lg-root')).getPropertyValue('--lg-accent').trim() || '#6f9bff';
+    marketChartInstance.data.datasets[0].borderColor = accent;
+    marketChartInstance.data.datasets[0].backgroundColor = accent + '33';
+    marketChartInstance.data.datasets[0].borderWidth = 2;
+    marketChartInstance.update();
+  }
+
+  async function fetchMarketData() {
+    const key = el('lg-mkt-key').value.trim();
+    const ticker = (el('lg-mkt-ticker').value.trim() || 'STW').toUpperCase();
+    const statusEl = el('lg-mkt-status');
+    const loadBtn = el('lg-mkt-load-btn');
+    if (!key) { statusEl.textContent = 'Paste a free Alpha Vantage API key first (alphavantage.co/support/#api-key).'; return; }
+    if (loadBtn.disabled) return;
+
+    loadBtn.disabled = true;
+    loadBtn.style.opacity = '0.6';
+    setTimeout(() => { loadBtn.disabled = false; loadBtn.style.opacity = '1'; }, 13000);
+
+    await store.set(MARKET_KEY_STORAGE, key);
+    await store.set(MARKET_TICKER_STORAGE, ticker);
+
+    statusEl.textContent = 'Loading ' + ticker + '…';
+    try {
+      const url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=' + encodeURIComponent(ticker) + '&outputsize=full&apikey=' + encodeURIComponent(key);
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data['Error Message']) { statusEl.textContent = 'Symbol "' + ticker + '" not found — try STW, IOZ, or A200 instead.'; return; }
+      if (data['Note'] || data['Information']) { statusEl.textContent = 'Alpha Vantage limit hit — free keys allow 5 calls/minute and 25/day. If you just tried a few tickers quickly, wait about a minute and try again.'; return; }
+      const series = data['Time Series (Daily)'];
+      if (!series) { statusEl.textContent = 'No data returned — double check your API key and ticker.'; return; }
+
+      marketSeries = Object.keys(series)
+        .map((date) => ({ date, close: parseFloat(series[date]['4. close']) }))
+        .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const first = marketSeries[0], last = marketSeries[marketSeries.length - 1];
+      const changePct = ((last.close - first.close) / first.close * 100).toFixed(1);
+      statusEl.textContent = ticker + ': ' + last.close.toFixed(2) + ' as of ' + last.date + ' (full history: ' + (changePct >= 0 ? '+' : '') + changePct + '%)';
+      renderMarketChart();
+    } catch (e) {
+      statusEl.textContent = 'Could not load data — check your internet connection and try again.';
+    }
+  }
+
+  async function initMarketChart() {
+    try {
+      const savedKey = await store.get(MARKET_KEY_STORAGE);
+      const savedTicker = await store.get(MARKET_TICKER_STORAGE);
+      if (savedKey) el('lg-mkt-key').value = savedKey;
+      el('lg-mkt-ticker').value = savedTicker || 'STW';
+    } catch (e) {}
+
+    el('lg-mkt-load-btn').addEventListener('click', fetchMarketData);
+    document.querySelectorAll('#lg-mkt-suggestions button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        el('lg-mkt-ticker').value = btn.getAttribute('data-ticker');
+        el('lg-mkt-status').textContent = 'Ticker set to ' + btn.getAttribute('data-ticker') + ' — tap Load chart to fetch it.';
+      });
+    });
+    document.querySelectorAll('#lg-mkt-ranges button').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        activeRange = btn.getAttribute('data-range');
+        document.querySelectorAll('#lg-mkt-ranges button').forEach((b) => b.style.opacity = b === btn ? '1' : '0.55');
+        renderMarketChart();
+      });
+      if (btn.getAttribute('data-range') === activeRange) btn.style.opacity = '1'; else btn.style.opacity = '0.55';
+    });
+  }
+
+  el('lg-log-btn').addEventListener('click', handleLog);
+  el('lg-txn-log-btn').addEventListener('click', handleLogTransaction);
+  el('lg-reset-btn').addEventListener('click', handleReset);
+
+  if (!window.storage) {
+    el('lg-offline-note').textContent = navigator.onLine === false ? 'Offline — showing your last saved data' : 'Running standalone — data saved on this device';
+  }
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  }
+
+  (async function init() {
+    applyTheme('nebula');
+    renderTabbar();
+    await loadEntries();
+    await loadTransactions();
+    await initWildcards();
+    await initAccounts();
+    await initGoal();
+    await initIncomeInput();
+    await initInvestProfile();
+    await initMarketChart();
+    renderAll();
+    renderCheckinNudge();
+  })();
+})();
+</script>
+</body>
+</html>
