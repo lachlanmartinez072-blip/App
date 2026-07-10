@@ -125,7 +125,6 @@
   <div class="lg-bg" id="lg-bg"></div>
 
   <p class="lg-offline-note" id="lg-offline-note"></p>
-  <div class="lg-themes" id="lg-themes"></div>
 
   <!-- ============ HOME ============ -->
   <div class="lg-page active" id="page-home">
@@ -145,6 +144,7 @@
       <p class="lg-hero-num" id="lg-left-to-goal" style="font-size:28px;">$35,000</p>
       <div class="lg-bar-track"><div class="lg-bar-fill" id="lg-bar-fill" style="width:0%"></div></div>
       <p class="lg-hero-sub" id="lg-progress-sub">$50,000 of $85,000</p>
+      <p class="lg-goal-sub" id="lg-required-pace" style="margin-top:2px;"></p>
     </div>
 
     <div class="lg-card">
@@ -188,6 +188,7 @@
   <div class="lg-page" id="page-budgets">
     <div class="lg-card">
       <p class="lg-section-title">Budgets — last logged week</p>
+      <p class="lg-goal-sub" id="lg-budgets-required-pace" style="margin-bottom:10px;"></p>
       <div id="lg-budget-rows"></div>
     </div>
   </div>
@@ -330,9 +331,7 @@
   const el = (id) => document.getElementById(id);
 
   const THEMES = {
-    aurora: { name: 'Aurora', font: "'Bricolage Grotesque', sans-serif", bg: 'radial-gradient(circle at 18% 18%, #ff6f61 0%, transparent 45%), radial-gradient(circle at 82% 78%, #7f2aff 0%, transparent 50%), #160a30', glass: 'rgba(255,255,255,0.10)', border: 'rgba(255,255,255,0.20)', text: '#fdf3ee', textSoft: 'rgba(253,243,238,0.65)', accent: '#ff8a70', accent2: '#a35bff' },
-    nebula: { name: 'Nebula', font: "'Sora', sans-serif", bg: 'radial-gradient(circle at 22% 18%, #3a4bd6 0%, transparent 45%), radial-gradient(circle at 80% 82%, #7a3ad1 0%, transparent 50%), #10123a', glass: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.16)', text: '#eef0ff', textSoft: 'rgba(238,240,255,0.65)', accent: '#6f9bff', accent2: '#9a7bff' },
-    citrus: { name: 'Citrus', font: "'Instrument Serif', serif", bg: 'radial-gradient(circle at 18% 18%, #d8f5e3 0%, transparent 45%), radial-gradient(circle at 82% 78%, #fdf0c0 0%, transparent 50%), #fdf8ee', glass: 'rgba(255,255,255,0.55)', border: 'rgba(120,110,90,0.18)', text: '#2b2a25', textSoft: 'rgba(43,42,37,0.6)', accent: '#e0895a', accent2: '#4fae7a' }
+    nebula: { name: 'Nebula', font: "'Sora', sans-serif", bg: 'radial-gradient(circle at 22% 18%, #3a4bd6 0%, transparent 45%), radial-gradient(circle at 80% 82%, #7a3ad1 0%, transparent 50%), #10123a', glass: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.16)', text: '#eef0ff', textSoft: 'rgba(238,240,255,0.65)', accent: '#6f9bff', accent2: '#9a7bff' }
   };
 
   const TABS = [
@@ -376,19 +375,6 @@
     root.style.setProperty('--lg-accent', t.accent);
     root.style.setProperty('--lg-accent2', t.accent2);
     root.style.setProperty('--lg-bg-grad', t.bg);
-    renderThemeButtons();
-  }
-
-  function renderThemeButtons() {
-    const wrap = el('lg-themes');
-    wrap.innerHTML = '';
-    Object.keys(THEMES).forEach((key) => {
-      const btn = document.createElement('button');
-      btn.className = 'lg-theme-btn' + (key === currentTheme ? ' active' : '');
-      btn.textContent = THEMES[key].name;
-      btn.addEventListener('click', async () => { applyTheme(key); await store.set(THEME_KEY, key); });
-      wrap.appendChild(btn);
-    });
   }
 
   function renderTabbar() {
@@ -553,6 +539,18 @@
     el('lg-left-to-goal').textContent = fmt(leftToGoal);
     el('lg-progress-sub').textContent = fmt(total) + ' of ' + fmt(GOAL_MID);
     el('lg-bar-fill').style.width = Math.max(0, Math.min(100, (total - START_BALANCE) / (GOAL_MID - START_BALANCE) * 100)) + '%';
+
+    const requiredPerWeek = weeksToGoal > 0 ? leftToGoal / weeksToGoal : 0;
+    let paceText;
+    if (leftToGoal <= 0) {
+      paceText = "You've already reached the goal — nice work.";
+    } else if (weeksToGoal <= 0) {
+      paceText = 'The Dec 31 deadline has passed.';
+    } else {
+      paceText = 'Needs ~' + fmt(requiredPerWeek) + '/week saved to get there by Dec 31 (' + weeksToGoal + ' weeks left).';
+    }
+    el('lg-required-pace').textContent = paceText;
+    if (el('lg-budgets-required-pace')) el('lg-budgets-required-pace').textContent = paceText;
 
     renderSplitBar();
 
@@ -779,9 +777,7 @@
   }
 
   (async function init() {
-    let savedTheme = null;
-    try { savedTheme = await store.get(THEME_KEY); } catch (e) {}
-    applyTheme(savedTheme && THEMES[savedTheme] ? savedTheme : 'nebula');
+    applyTheme('nebula');
     renderTabbar();
     await loadEntries();
     await initWildcards();
