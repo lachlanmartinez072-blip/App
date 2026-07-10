@@ -1,4 +1,4 @@
-const CACHE_NAME = 'money-plan-cache-v6';
+const CACHE_NAME = 'money-plan-cache-v9';
 
 self.addEventListener('install', () => {
   self.skipWaiting();
