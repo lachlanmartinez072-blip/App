@@ -179,32 +179,16 @@
   <!-- ============ ACTIVITY ============ -->
   <div class="lg-page" id="page-activity">
     <div class="lg-card">
-      <p class="lg-section-title">All logged weeks</p>
-      <div id="lg-tx-rows"><p class="lg-empty">No weeks logged yet.</p></div>
-    </div>
-  </div>
-
-  <!-- ============ BUDGETS ============ -->
-  <div class="lg-page" id="page-budgets">
-    <div class="lg-card">
-      <p class="lg-section-title">Budgets — last logged week</p>
-      <p class="lg-goal-sub" id="lg-budgets-required-pace" style="margin-bottom:10px;"></p>
-      <div id="lg-budget-rows"></div>
-    </div>
-  </div>
-
-  <!-- ============ INVEST ============ -->
-  <div class="lg-page" id="page-invest">
-    <div class="lg-card">
-      <p class="lg-section-title">Your investment profile</p>
-      <p class="lg-goal-sub" style="margin-bottom:10px;">This just guides the tips you see here — it doesn't restrict anything.</p>
-      <div class="lg-field" style="margin-bottom:10px;">
-        <label>Risk tolerance</label>
-        <select id="lg-inv-risk" style="width:100%; height:36px; border-radius:12px; border:1px solid var(--lg-glass-border); background:color-mix(in srgb, var(--lg-text) 6%, transparent); color:var(--lg-text); font-family:'Inter',sans-serif; font-weight:600; font-size:13px; padding:0 8px;">
-          <option value="conservative">Conservative — smoother ride, lower expected return</option>
-          <option value="balanced">Balanced — a mix of shares and bonds</option>
-          <option value="growth">Growth — mostly shares, more ups and downs</option>
-        </select>
+      <p class="lg-section-title">Log a transaction</p>
+      <div class="lg-form-grid">
+        <div class="lg-field"><label>Name</label><input type="text" id="lg-txn-name" placeholder="e.g. Woolworths"/></div>
+        <div class="lg-field"><label>Amount</label><input type="number" id="lg-txn-amount" placeholder="0"/></div>
       </div>
-      <div class="lg-field" style="margin-bottom:10px;"><label>Monthly investing target</label><input type="number" id="lg-inv-monthly" placeholder="300"/></div>
-      <div class="lg-field" style="margin-bottom:10px;"><label>Notes
+      <div class="lg-field" style="margin-bottom:10px;">
+        <label>Category</label>
+        <input type="text" id="lg-txn-category" list="lg-txn-category-list" placeholder="Food, Subscription, Travel…"/>
+        <datalist id="lg-txn-category-list">
+          <option value="Food"></option>
+          <option value="Subscription"></option>
+          <option value="Travel"></option>
+          <option value="Transport"></option>
