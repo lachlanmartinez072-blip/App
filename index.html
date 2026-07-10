@@ -147,32 +147,6 @@
       <p class="lg-goal-sub" id="lg-checkin-msg" style="margin-bottom:6px;"></p>
     </div>
 
-    <div class="lg-card" id="lg-trip-card">
-      <p class="lg-section-title">Trip mode</p>
-      <p class="lg-goal-sub" id="lg-trip-status" style="margin-bottom:10px;">No trip set up yet.</p>
-      <div class="lg-form-grid">
-        <div class="lg-field"><label>Destination</label><input type="text" id="lg-trip-name" placeholder="Asia trip"/></div>
-        <div class="lg-field"><label>Budget</label><input type="number" id="lg-trip-budget" placeholder="3000"/></div>
-        <div class="lg-field"><label>Start date</label><input type="date" id="lg-trip-start"/></div>
-        <div class="lg-field"><label>End date</label><input type="date" id="lg-trip-end"/></div>
-      </div>
-      <button class="lg-save-btn" id="lg-trip-save-btn" style="margin-bottom:10px;">Save trip</button>
-
-      <div id="lg-trip-dashboard" style="display:none;">
-        <div class="lg-bar-track"><div class="lg-bar-fill" id="lg-trip-bar-fill" style="width:0%; background:#e0895a;"></div></div>
-        <div class="lg-grid3-like" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-bottom:12px;">
-          <div><p class="lg-hero-label">Spent / Budget</p><p class="lg-goal-label" id="lg-trip-spent-of-budget">-</p></div>
-          <div><p class="lg-hero-label">Daily average so far</p><p class="lg-goal-label" id="lg-trip-daily-avg">-</p></div>
-        </div>
-        <div class="lg-form-grid">
-          <div class="lg-field"><label>Expense name</label><input type="text" id="lg-trip-exp-name" placeholder="e.g. Hostel, ramen…"/></div>
-          <div class="lg-field"><label>Amount</label><input type="number" id="lg-trip-exp-amount" placeholder="0"/></div>
-        </div>
-        <button class="lg-log-btn" id="lg-trip-exp-log-btn" style="margin-bottom:10px;">Log trip expense</button>
-        <div id="lg-trip-exp-rows"><p class="lg-empty">No trip expenses logged yet.</p></div>
-      </div>
-    </div>
-
     <div class="lg-card">
       <p class="lg-hero-label" id="lg-goal-label">Left to reach your $85k goal</p>
       <p class="lg-hero-num" id="lg-left-to-goal" style="font-size:28px;">$35,000</p>
@@ -183,7 +157,8 @@
 
     <div class="lg-card">
       <p class="lg-section-title">This week's paycheck split</p>
-      <p class="lg-goal-sub" id="lg-week-type-label" style="margin-bottom:10px;">Checking the date…</p>
+      <p class="lg-goal-sub" id="lg-week-type-label" style="margin-bottom:4px;">Checking the date…</p>
+      <p class="lg-goal-sub" id="lg-split-basis-note" style="margin-bottom:10px;"></p>
       <p class="lg-goal-sub" id="lg-trip-pause-note" style="display:none; margin-bottom:10px; color:#e0895a;"></p>
       <div class="lg-field" style="margin-bottom:12px;">
         <label>This week's income (what actually landed)</label>
@@ -208,6 +183,38 @@
       </div>
       <button class="lg-log-btn" id="lg-log-btn">Log week</button>
       <div class="lg-feedback" id="lg-feedback"></div>
+    </div>
+
+    <div class="lg-card" id="lg-trip-card">
+      <button id="lg-trip-toggle" style="width:100%; display:flex; align-items:center; justify-content:space-between; background:none; border:none; padding:0; cursor:pointer; color:var(--lg-text);">
+        <span class="lg-section-title" style="margin:0;">Trip mode</span>
+        <span id="lg-trip-chevron" style="font-size:14px; transition:transform 0.2s ease;">▾</span>
+      </button>
+      <p class="lg-goal-sub" id="lg-trip-status" style="margin:8px 0 0;">No trip set up yet.</p>
+      <div id="lg-trip-collapsible" style="display:none; margin-top:10px;">
+        <div class="lg-form-grid">
+          <div class="lg-field"><label>Destination</label><input type="text" id="lg-trip-name" placeholder="Asia trip"/></div>
+          <div class="lg-field"><label>Budget</label><input type="number" id="lg-trip-budget" placeholder="3000"/></div>
+          <div class="lg-field"><label>Start date</label><input type="date" id="lg-trip-start"/></div>
+          <div class="lg-field"><label>End date</label><input type="date" id="lg-trip-end"/></div>
+        </div>
+        <button class="lg-save-btn" id="lg-trip-save-btn" style="margin-bottom:10px;">Save trip</button>
+
+        <div id="lg-trip-dashboard" style="display:none;">
+          <div class="lg-bar-track"><div class="lg-bar-fill" id="lg-trip-bar-fill" style="width:0%; background:#e0895a;"></div></div>
+          <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:8px; margin-bottom:12px;">
+            <div><p class="lg-hero-label">Spent / Budget</p><p class="lg-goal-label" id="lg-trip-spent-of-budget">-</p></div>
+            <div><p class="lg-hero-label">Daily average so far</p><p class="lg-goal-label" id="lg-trip-daily-avg">-</p></div>
+          </div>
+          <div class="lg-form-grid">
+            <div class="lg-field"><label>Expense name</label><input type="text" id="lg-trip-exp-name" placeholder="e.g. Hostel, ramen…"/></div>
+            <div class="lg-field"><label>Amount</label><input type="number" id="lg-trip-exp-amount" placeholder="0"/></div>
+          </div>
+          <div class="lg-field" style="margin-bottom:10px;"><label>Date</label><input type="date" id="lg-trip-exp-date"/></div>
+          <button class="lg-log-btn" id="lg-trip-exp-log-btn" style="margin-bottom:10px;">Log trip expense</button>
+          <div id="lg-trip-exp-rows"><p class="lg-empty">No trip expenses logged yet.</p></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -429,9 +436,26 @@
 
   function weekIndexForDate(d) { return Math.floor((d - ANCHOR_DATE) / (7 * 86400000)); }
   function isHighWeekForDate(d) { const idx = weekIndexForDate(d); return (((idx % 2) + 2) % 2) === 1; }
-  function currentWeekHisaTarget() { return isHighWeekForDate(new Date()) ? TARGET_HISA_HIGH : TARGET_HISA_LOW; }
 
-  function targetHisaFor(i) { return i % 2 === 0 ? TARGET_HISA_LOW : TARGET_HISA_HIGH; }
+  function computeRequiredAvgPerWeek() {
+    const total = netWorthTotal();
+    const leftToGoal = Math.max(0, GOAL_MID - total);
+    const weeksToGoal = Math.max(0, Math.round((GOAL_DATE - new Date()) / (7 * 86400000)));
+    if (weeksToGoal <= 0 || leftToGoal <= 0) return 0;
+    const effectiveWeeks = Math.max(0.1, weeksToGoal - tripOverlapWeeksWithGoal());
+    return leftToGoal / effectiveWeeks;
+  }
+
+  function dynamicHisaTarget(isHigh) {
+    const avg = computeRequiredAvgPerWeek();
+    const base = avg > 0 ? avg : (TARGET_HISA_LOW + TARGET_HISA_HIGH) / 2;
+    const ratio = isHigh ? (TARGET_HISA_HIGH / 600) : (TARGET_HISA_LOW / 600);
+    return Math.round(base * ratio);
+  }
+
+  function currentWeekHisaTarget() { return dynamicHisaTarget(isHighWeekForDate(new Date())); }
+
+  function targetHisaFor(i) { return dynamicHisaTarget(i % 2 !== 0); }
   function targetCombinedFor(i) { return targetHisaFor(i); }
   const fmt = (n) => '$' + Math.round(n).toLocaleString();
   const el = (id) => document.getElementById(id);
@@ -753,7 +777,7 @@
     const wrap = el('lg-trip-exp-rows');
     if (tripExpenses.length === 0) { wrap.innerHTML = '<p class="lg-empty">No trip expenses logged yet.</p>'; return; }
     wrap.innerHTML = '';
-    tripExpenses.slice().reverse().forEach((e) => {
+    tripExpenses.slice().sort((a, b) => new Date(b.date) - new Date(a.date)).forEach((e) => {
       const dateLabel = new Date(e.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
       const row = document.createElement('div');
       row.className = 'lg-tx-row';
@@ -781,8 +805,16 @@
       el('lg-trip-start').value = trip.start || '';
       el('lg-trip-end').value = trip.end || '';
     }
+    el('lg-trip-exp-date').value = new Date().toISOString().slice(0, 10);
     renderTripDashboard();
     renderTripExpenses();
+
+    let tripExpanded = false;
+    el('lg-trip-toggle').addEventListener('click', () => {
+      tripExpanded = !tripExpanded;
+      el('lg-trip-collapsible').style.display = tripExpanded ? 'block' : 'none';
+      el('lg-trip-chevron').style.transform = tripExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
 
     el('lg-trip-save-btn').addEventListener('click', async () => {
       const name = el('lg-trip-name').value.trim() || 'Your trip';
@@ -799,11 +831,13 @@
     el('lg-trip-exp-log-btn').addEventListener('click', async () => {
       const name = el('lg-trip-exp-name').value.trim();
       const amount = parseFloat(el('lg-trip-exp-amount').value) || 0;
+      const dateVal = el('lg-trip-exp-date').value || new Date().toISOString().slice(0, 10);
       if (!name || amount === 0) return;
-      tripExpenses.push({ id: Date.now() + Math.random(), name, amount, date: new Date().toISOString() });
+      tripExpenses.push({ id: Date.now() + Math.random(), name, amount, date: dateVal + 'T12:00:00' });
       await saveTripExpenses();
       el('lg-trip-exp-name').value = '';
       el('lg-trip-exp-amount').value = '';
+      el('lg-trip-exp-date').value = new Date().toISOString().slice(0, 10);
       renderTripDashboard();
       renderTripExpenses();
     });
@@ -829,10 +863,13 @@
 
   function renderSplitBar() {
     const hisaTarget = currentWeekHisaTarget();
-    const isHigh = hisaTarget === TARGET_HISA_HIGH;
-    el('lg-week-type-label').textContent = isHigh
-      ? 'This is a $900 fortnightly week (the bigger paycheck).'
-      : 'This is a $300 fortnightly week (the smaller paycheck).';
+    el('lg-week-type-label').textContent = isHighWeekForDate(new Date())
+      ? 'This is your double-paycheck week.'
+      : 'This is your single-paycheck week.';
+    const avg = computeRequiredAvgPerWeek();
+    el('lg-split-basis-note').textContent = avg > 0
+      ? ('Based on needing ~' + fmt(avg) + '/week on average to hit your goal, scaled for this week\'s paycheck size.')
+      : "You're on track — this reflects your usual paycheck split.";
     el('lg-income-input').placeholder = String(300 + hisaTarget);
     el('lg-saved').placeholder = String(hisaTarget);
     el('lg-log-hint').textContent = 'Expected this week: ' + fmt(hisaTarget);
@@ -925,7 +962,7 @@
     el('lg-progress-sub').textContent = fmt(total) + ' of ' + fmt(GOAL_MID);
     el('lg-bar-fill').style.width = Math.max(0, Math.min(100, (total - START_BALANCE) / (GOAL_MID - START_BALANCE) * 100)) + '%';
 
-    const requiredPerWeek = weeksToGoal > 0 ? leftToGoal / Math.max(0.1, weeksToGoal - tripOverlapWeeksWithGoal()) : 0;
+    const requiredPerWeek = computeRequiredAvgPerWeek();
     const deadlineLabel = GOAL_DATE.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
     const tripNote = tripOverlapWeeksWithGoal() > 0.4 ? ' (accounting for no income during your trip)' : '';
     let paceText;
